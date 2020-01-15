@@ -25,7 +25,8 @@
     <ClCompile Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Engine.h" />
+    <ClInclude Include="src\Aliases.h" />
+    <ClInclude Include="src\HOEngine.h" />
     <ClInclude Include="src\Math.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

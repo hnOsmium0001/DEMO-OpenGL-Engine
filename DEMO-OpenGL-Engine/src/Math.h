@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Aliases.h"
+
 namespace HOEngine {
 
 	class Dimension {
 	public:
-		int width;
-		int height;
+		i32 width;
+		i32 height;
 	};
 
 }
