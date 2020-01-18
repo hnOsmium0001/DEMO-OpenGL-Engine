@@ -2,32 +2,38 @@
 
 #include <string>
 #include <functional>
+#include <optional>
 #include <GLFW/glfw3.h>
 #include "Aliases.h"
-#include "Math.h"
+#include "Util.h"
 
 namespace HOEngine {
 
-	class Window {
-	private:
-		HOEngine::Dimension dim;
-		GLFWwindow* window;
+class WindowCallbacks {
+public:
+	std::optional<FuncPtr<auto(GLFWwindow*, i32, i32, i32, i32) -> void>> keyCallback;
+	std::optional<FuncPtr<auto(GLFWwindow*, u32) -> void>> charCallback;
+	std::optional<FuncPtr<auto(GLFWwindow*, f64, f64) -> void>> cursorPosCallback;
+	std::optional<FuncPtr<auto(GLFWwindow*, i32, i32, i32) -> void>> cursorButtonCallback;
+	std::optional<FuncPtr<auto(GLFWwindow*, f64, f64) -> void>> scrollCallback;
+};
 
-		void(*keyCallback)(GLFWwindow*, i32, i32, i32, i32);
-		void(*charCallback)(GLFWwindow*, u32);
-		void(*cursorPosCallback)(GLFWwindow*, f64, f64);
-		void(*cursorButtonCallback)(GLFWwindow*, i32, i32, i32);
-		void(*scrollCallback)(GLFWwindow*, f64, f64);
+class Window {
+private:
+	Dimension _dim;
+	GLFWwindow* _window;
 
-	public:
-		Window()
-			: dim{} {
-		}
+public:
+	Window() = default;
+	Window(const Window& source) = delete;
+	Window(Window&& source);
+	~Window();
 
-		void Init(HOEngine::Dimension dim, std::string& title);
+	void Init(Dimension dim, const std::string& title, WindowCallbacks callbacks);
+	bool ShouldClose() const;
 
-		HOEngine::Dimension& dim() { return dim; }
-		const HOEngine::Dimension& dim() const { return dim; }
-	};
+	Dimension& dim() { return _dim; }
+	const Dimension& dim() const { return _dim; }
+};
 
-}
+} // namespace HOEngine

@@ -32,13 +32,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Aliases.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\HOEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
