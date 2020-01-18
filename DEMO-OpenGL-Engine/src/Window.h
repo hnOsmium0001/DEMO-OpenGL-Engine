@@ -11,11 +11,11 @@ namespace HOEngine {
 
 class WindowCallbacks {
 public:
-	std::optional<FuncPtr<auto(GLFWwindow*, i32, i32, i32, i32) -> void>> keyCallback;
-	std::optional<FuncPtr<auto(GLFWwindow*, u32) -> void>> charCallback;
-	std::optional<FuncPtr<auto(GLFWwindow*, f64, f64) -> void>> cursorPosCallback;
-	std::optional<FuncPtr<auto(GLFWwindow*, i32, i32, i32) -> void>> cursorButtonCallback;
-	std::optional<FuncPtr<auto(GLFWwindow*, f64, f64) -> void>> scrollCallback;
+	std::optional<FnPtr<auto(GLFWwindow*, i32, i32, i32, i32) -> void>> keyCallback;
+	std::optional<FnPtr<auto(GLFWwindow*, u32) -> void>> charCallback;
+	std::optional<FnPtr<auto(GLFWwindow*, f64, f64) -> void>> cursorPosCallback;
+	std::optional<FnPtr<auto(GLFWwindow*, i32, i32, i32) -> void>> cursorButtonCallback;
+	std::optional<FnPtr<auto(GLFWwindow*, f64, f64) -> void>> scrollCallback;
 };
 
 class Window {

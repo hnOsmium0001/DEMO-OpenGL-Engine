@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="example\Main.cpp" />
-    <ClCompile Include="src\Math.cpp" />
+    <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\Window.h" />
   </ItemGroup>
