@@ -8,7 +8,9 @@ void keyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods
 }
 
 int main(void) {
-	HOEngine::Window window;
+	glfwInit();
+
+	HOEngine::Window window = {};
 	HOEngine::WindowCallbacks callbacks = {
 		std::optional(keyCallback),
 		std::nullopt,

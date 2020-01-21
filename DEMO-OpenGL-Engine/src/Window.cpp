@@ -1,33 +1,34 @@
 #include "Window.h"
+#include <stdexcept>
 #include <iostream>
 
-HOEngine::Window::Window(Window&& source)
-	: _dim{ std::move(source._dim) },
-	_window{ std::move(source._window) } {
+HOEngine::Window::Window(Window&& source) noexcept
+	: dim_{ std::move(source.dim_) },
+	window_{ std::move(source.window_) } {
 }
 
-HOEngine::Window::~Window() {
-	glfwDestroyWindow(_window);
+HOEngine::Window::~Window() noexcept {
+	glfwDestroyWindow(window_);
 }
 
 void HOEngine::Window::Init(HOEngine::Dimension dim, const std::string& title, HOEngine::WindowCallbacks callbacks) {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	_window = glfwCreateWindow(dim.width, dim.height, title.c_str(), nullptr, nullptr);
-	if (_window == nullptr) {
+	window_ = glfwCreateWindow(dim.width, dim.height, title.c_str(), nullptr, nullptr);
+	if (window_ == nullptr) {
 		throw std::runtime_error("Unable to create window");
 	}
 
-	glfwMakeContextCurrent(_window);
-	glfwGetFramebufferSize(_window, &_dim.width, &_dim.height);
-	if (callbacks.keyCallback.has_value()) glfwSetKeyCallback(_window, callbacks.keyCallback.value().ptr);
-	if (callbacks.charCallback.has_value()) glfwSetCharCallback(_window, callbacks.charCallback.value().ptr);
-	if (callbacks.cursorPosCallback.has_value()) glfwSetCursorPosCallback(_window, callbacks.cursorPosCallback.value().ptr);
-	if (callbacks.cursorButtonCallback.has_value()) glfwSetMouseButtonCallback(_window, callbacks.cursorButtonCallback.value().ptr);
-	if (callbacks.scrollCallback.has_value()) glfwSetScrollCallback(_window, callbacks.scrollCallback.value().ptr);
+	glfwMakeContextCurrent(window_);
+	glfwGetFramebufferSize(window_, &dim_.width, &dim_.height);
+	if (callbacks.keyCallback.has_value()) glfwSetKeyCallback(window_, callbacks.keyCallback.value());
+	if (callbacks.charCallback.has_value()) glfwSetCharCallback(window_, callbacks.charCallback.value());
+	if (callbacks.cursorPosCallback.has_value()) glfwSetCursorPosCallback(window_, callbacks.cursorPosCallback.value());
+	if (callbacks.cursorButtonCallback.has_value()) glfwSetMouseButtonCallback(window_, callbacks.cursorButtonCallback.value());
+	if (callbacks.scrollCallback.has_value()) glfwSetScrollCallback(window_, callbacks.scrollCallback.value());
 }
 
 bool HOEngine::Window::ShouldClose() const {
-	return glfwWindowShouldClose(_window);
+	return glfwWindowShouldClose(window_);
 }
