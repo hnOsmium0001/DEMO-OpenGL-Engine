@@ -16,30 +16,51 @@
     <Filter Include="Source Files\Example">
       <UniqueIdentifier>{b614203f-6d19-49a6-9075-0feddca44b65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Library">
+      <UniqueIdentifier>{01a90b63-167e-4bb2-9d17-7a12ec8ea964}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Library">
+      <UniqueIdentifier>{256bf0ee-0fd3-40cf-a908-34479784c1d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine">
+      <UniqueIdentifier>{d5832f5c-25af-4b26-8a55-2bbb10eb9c77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine">
+      <UniqueIdentifier>{bdf6dda2-e4f9-4593-ba5e-b4681b0ae89b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Window.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="example\Main.cpp">
       <Filter>Source Files\Example</Filter>
     </ClCompile>
+    <ClCompile Include="lib\gl3w\gl3w.c">
+      <Filter>Source Files\Library</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine.hpp">
+      <Filter>Header Files\Engine</Filter>
+    </ClCompile>
     <ClCompile Include="src\Util.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Aliases.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Aliases.hpp">
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\HOEngine.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\Util.hpp">
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\Util.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="lib\gl3w\GL\gl3w.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\gl3w\KHR\khrplatform.h">
+      <Filter>Header Files\Library</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\gl3w\GL\glcorearb.h">
+      <Filter>Header Files\Library</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

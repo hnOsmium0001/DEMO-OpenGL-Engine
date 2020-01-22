@@ -20,14 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="example\Main.cpp" />
+    <ClCompile Include="lib\gl3w\gl3w.c" />
     <ClCompile Include="src\Util.cpp" />
-    <ClCompile Include="src\Window.cpp" />
-    <ClCompile Include="src\Window.h" />
+    <ClCompile Include="src\Engine.cpp" />
+    <ClCompile Include="src\Engine.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Aliases.h" />
-    <ClInclude Include="src\HOEngine.h" />
-    <ClInclude Include="src\Util.h" />
+    <ClInclude Include="lib\gl3w\GL\gl3w.h" />
+    <ClInclude Include="lib\gl3w\GL\glcorearb.h" />
+    <ClInclude Include="lib\gl3w\KHR\khrplatform.h" />
+    <ClInclude Include="src\Aliases.hpp" />
+    <ClInclude Include="src\Util.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -87,8 +90,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\tguan653\Documents\Visual Studio 2017\Libraries\glm0.9.9.7;C:\Users\tguan653\Documents\Visual Studio 2017\Libraries\GLFW3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\lib\gl3w;E:\Library\GLFW3.3.1\include;E:\Library\glm0.9.9.7</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\tguan653\Documents\Visual Studio 2017\Libraries\GLFW3.3.1\lib-vc2017;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -102,7 +106,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>E:\Library\glm0.9.9.7;E:\Library\GLFW3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\lib\gl3w;E:\Library\GLFW3.3.1\include;E:\Library\glm0.9.9.7</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -118,8 +123,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\tguan653\Documents\Visual Studio 2017\Libraries\glm0.9.9.7;C:\Users\tguan653\Documents\Visual Studio 2017\Libraries\GLFW3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\lib\gl3w;E:\Library\GLFW3.3.1\include;E:\Library\glm0.9.9.7</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -137,7 +143,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>E:\Library\glm0.9.9.7;E:\Library\GLFW3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\lib\gl3w;E:\Library\GLFW3.3.1\include;E:\Library\glm0.9.9.7</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

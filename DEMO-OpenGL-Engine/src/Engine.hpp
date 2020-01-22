@@ -3,9 +3,13 @@
 #include <string>
 #include <functional>
 #include <optional>
+#include <stdexcept>
+#include <iostream>
+#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
-#include "Aliases.h"
-#include "Util.h"
+#include <glm/glm.hpp>
+#include "Aliases.hpp"
+#include "Util.hpp"
 
 namespace HOEngine {
 
@@ -24,15 +28,21 @@ private:
 
 public:
 	Window() = default;
-	Window(const Window& source) = delete;
+	Window(const Window&) = delete;
 	Window(Window&& source) noexcept;
 	~Window() noexcept;
 
 	void Init(Dimension dim, const std::string& title, WindowCallbacks callbacks);
-	bool ShouldClose() const;
 
 	Dimension& dim() { return dim_; }
 	const Dimension& dim() const { return dim_; }
+	operator GLFWwindow*() const { return window_; }
+};
+
+class ApplicationBase {
+public:
+	ApplicationBase();
+	~ApplicationBase() noexcept;
 };
 
 } // namespace HOEngine
