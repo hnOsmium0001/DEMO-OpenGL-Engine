@@ -1,8 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <utility>
-#include <iostream>
+#include <optional>
 
 namespace HOEngine {
 
@@ -32,5 +33,7 @@ public:
 		function_();
 	}
 };
+
+std::optional<std::string> ReadFileAsStr(const std::string& path);
 
 } // namespace HOEngine

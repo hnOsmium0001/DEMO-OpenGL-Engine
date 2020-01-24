@@ -16,8 +16,8 @@ public:
   static std::optional<Shader> New(const std::string& source);
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
-  Shader(Shader&&) noexcept;
-  Shader& operator=(Shader&&) noexcept;
+  Shader(Shader&& source) noexcept;
+  Shader& operator=(Shader&& source) noexcept;
   ~Shader() noexcept;
   
   operator GLuint() const { return handle_; }
@@ -34,8 +34,8 @@ public:
   static std::optional<ShaderProgram> New(const Shader& vsh, const Shader& fsh);
   ShaderProgram(const ShaderProgram&) = delete;
   ShaderProgram& operator=(const ShaderProgram&) = delete;
-  ShaderProgram(ShaderProgram&&) noexcept;
-  ShaderProgram& operator=(ShaderProgram&&) noexcept;
+  ShaderProgram(ShaderProgram&& source) noexcept;
+  ShaderProgram& operator=(ShaderProgram&& source) noexcept;
   ~ShaderProgram() noexcept;
 
   operator GLuint() const { return handle_; }

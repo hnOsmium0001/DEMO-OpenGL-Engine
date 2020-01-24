@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Engine.hpp>
+#include <Shader.hpp>
 
 void keyCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
 }
@@ -45,6 +46,15 @@ public:
 		GLuint vbo;
 		glGenBuffers(1, &vbo);
 		HOEngine::ScopeGuard vboRelease([&]() { glDeleteBuffers(1, &vbo); });
+
+		auto vshSource = HOEngine::ReadFileAsStr("example/resources/triangle.vsh").value_or("");
+		auto fshSource = HOEngine::ReadFileAsStr("example/resources/triangle.fsh").value_or("");
+		std::cout << vshSource << "\n\n\n" << fshSource;
+		auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
+		if (!program) {
+			std::cerr << "Unable to create shader program, aborting\n";
+			return;
+		}
 
 		// Initialization
 		glBindVertexArray(vao);
