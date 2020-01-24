@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -19,7 +19,6 @@ add_library(gl3w
 )
 
 add_library(opengl_engine
-  engine/src/Aliases.hpp
   engine/src/Engine.hpp
   engine/src/Engine.cpp
   engine/src/Shader.hpp
@@ -32,9 +31,11 @@ target_link_libraries(opengl_engine
   ${CONAN_LIBS}
 )
 
+include_directories(engine/src)
 add_executable(opengl_example
   example/src/Main.cpp
 )
 target_link_libraries(opengl_example
-  opengl_engine // Includes link targets in `opengl_engine`
+  # Includes link targets in `opengl_engine`
+  opengl_engine
 )

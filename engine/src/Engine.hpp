@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <iostream>
@@ -9,35 +11,42 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "Aliases.hpp"
 #include "Util.hpp"
 
 namespace HOEngine {
 
 struct WindowCallbacks {
-	std::optional<void(*)(GLFWwindow*, i32, i32, i32, i32)> keyCallback;
-	std::optional<void(*)(GLFWwindow*, u32)> charCallback;
-	std::optional<void(*)(GLFWwindow*, f64, f64)> cursorPosCallback;
-	std::optional<void(*)(GLFWwindow*, i32, i32, i32)> cursorButtonCallback;
-	std::optional<void(*)(GLFWwindow*, f64, f64)> scrollCallback;
+	std::optional<void(*)(GLFWwindow*, int32_t, int32_t)> resizeCallback;
+	std::optional<void(*)(GLFWwindow*, int32_t, int32_t, int32_t, int32_t)> keyCallback;
+	std::optional<void(*)(GLFWwindow*, uint32_t)> charCallback;
+	std::optional<void(*)(GLFWwindow*, double, double)> cursorPosCallback;
+	std::optional<void(*)(GLFWwindow*, int32_t, int32_t, int32_t)> cursorButtonCallback;
+	std::optional<void(*)(GLFWwindow*, double, double)> scrollCallback;
 };
 
 class Window {
 private:
 	Dimension dim_;
-	GLFWwindow* window_;
+	GLFWwindow* handle_;
+
+	Window(Dimension, GLFWwindow*) noexcept;
 
 public:
-	Window() = default;
+	inline static Window* FromGLFW(GLFWwindow*);
+	static std::unique_ptr<Window> New(const Dimension& dim, const std::string& title, const WindowCallbacks& callbacks);
 	Window(const Window&) = delete;
-	Window(Window&& source) noexcept;
+	Window& operator=(const Window&) = delete;
+	Window(Window&&) noexcept;
+	Window& operator=(Window&&) noexcept;
 	~Window() noexcept;
-
-	void Init(Dimension dim, const std::string& title, WindowCallbacks callbacks);
 
 	Dimension& dim() { return dim_; }
 	const Dimension& dim() const { return dim_; }
-	operator GLFWwindow*() const { return window_; }
+	operator GLFWwindow*() const { return handle_; }
+
+	// Update window size fields of the attached window
+	inline static void HandleResize(GLFWwindow* handle, int32_t width, int32_t height);
+	inline static void HandleResize(Window* window, int32_t width, int32_t height);
 };
 
 class ApplicationBase {

@@ -1,15 +1,18 @@
 #pragma once
 
+#include <cstdint>
 #include <utility>
-
-#include "Aliases.hpp"
+#include <iostream>
 
 namespace HOEngine {
 
-struct Dimension {
-	i32 width;
-	i32 height;
+class Dimension {
+public:
+	int32_t width;
+	int32_t height;
 };
+
+std::ostream& operator<<(std::ostream& strm, const Dimension& dim);
 
 template <class F>
 class ScopeGuard {
