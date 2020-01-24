@@ -1,7 +1,10 @@
 #include <utility>
 #include <stdexcept>
 #include <iostream>
+
 #include "Engine.hpp"
+
+namespace HOEngine {
 
 HOEngine::Window::Window(Window&& source) noexcept
 	: dim_{ std::move(source.dim_) },
@@ -25,16 +28,12 @@ void HOEngine::Window::Init(HOEngine::Dimension dim, const std::string& title, H
 
 	glfwMakeContextCurrent(window_);
 
-	if (gl3wInit()) {
-		throw std::runtime_error("Unable to initialize OpenGL");
-	}
-
 	glfwGetFramebufferSize(window_, &dim_.width, &dim_.height);
-	if (callbacks.keyCallback.has_value()) glfwSetKeyCallback(window_, callbacks.keyCallback.value());
-	if (callbacks.charCallback.has_value()) glfwSetCharCallback(window_, callbacks.charCallback.value());
-	if (callbacks.cursorPosCallback.has_value()) glfwSetCursorPosCallback(window_, callbacks.cursorPosCallback.value());
-	if (callbacks.cursorButtonCallback.has_value()) glfwSetMouseButtonCallback(window_, callbacks.cursorButtonCallback.value());
-	if (callbacks.scrollCallback.has_value()) glfwSetScrollCallback(window_, callbacks.scrollCallback.value());
+	if (callbacks.keyCallback) glfwSetKeyCallback(window_, callbacks.keyCallback.value());
+	if (callbacks.charCallback) glfwSetCharCallback(window_, callbacks.charCallback.value());
+	if (callbacks.cursorPosCallback) glfwSetCursorPosCallback(window_, callbacks.cursorPosCallback.value());
+	if (callbacks.cursorButtonCallback) glfwSetMouseButtonCallback(window_, callbacks.cursorButtonCallback.value());
+	if (callbacks.scrollCallback) glfwSetScrollCallback(window_, callbacks.scrollCallback.value());
 }
 
 void ApplicationBase_OnError(i32 code, const char* msg) {
@@ -50,3 +49,5 @@ HOEngine::ApplicationBase::ApplicationBase() {
 HOEngine::ApplicationBase::~ApplicationBase() noexcept {
 	glfwTerminate();
 }
+
+} // namespace HOEngine

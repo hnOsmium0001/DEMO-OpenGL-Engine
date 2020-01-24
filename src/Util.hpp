@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+
 #include "Aliases.hpp"
 
 namespace HOEngine {
@@ -29,4 +30,4 @@ public:
 	}
 };
 
-} // HOEngine
+} // namespace HOEngine

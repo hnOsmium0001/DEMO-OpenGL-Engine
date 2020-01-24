@@ -17,18 +17,22 @@ include_directories(
   lib/gl3w/include
 )
 
+add_library(gl3w
+  lib/gl3w/gl3w.c
+)
+
 add_executable(OpenGLEngine
-  src/HOEngine.hpp
   src/Aliases.hpp
   src/Engine.hpp
   src/Engine.cpp
+  src/Shader.hpp
+  src/Shader.cpp
   src/Util.hpp
   src/Util.cpp
 
   example/Main.cpp
-
-  lib/gl3w/gl3w.c
 )
 target_link_libraries(OpenGLEngine
+  gl3w
   E:/Library/GLFW3.3.1/lib-mingw/libglfw3.a
 )

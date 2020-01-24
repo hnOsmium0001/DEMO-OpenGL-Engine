@@ -29,6 +29,10 @@ public:
 		};
 		window.Init({ 1024, 768 }, "Test window", callbacks);
 
+		if (gl3wInit()) {
+			throw std::runtime_error("Unable to initialize OpenGL");
+		}
+
 		// Allocation
 		GLuint vao;
 		glGenVertexArrays(1, &vao);
