@@ -1,7 +1,2 @@
-/*
-!CMakeLists.txt
-!conanfile.py
-!src/
-!example/
-!lib/
-!.vscode/
+build/
+.DS_Store

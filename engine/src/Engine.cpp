@@ -20,6 +20,9 @@ void HOEngine::Window::Init(HOEngine::Dimension dim, const std::string& title, H
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+#endif // __APPLE__
 
 	window_ = glfwCreateWindow(dim.width, dim.height, title.c_str(), nullptr, nullptr);
 	if (window_ == nullptr) {

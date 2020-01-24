@@ -5,15 +5,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(OpenGLEngine)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 include_directories(
-  E:/Library/GLFW3.3.1/include
-  E:/Library/glm0.9.9.7
   lib/gl3w/include
 )
 
@@ -21,18 +18,23 @@ add_library(gl3w
   lib/gl3w/gl3w.c
 )
 
-add_executable(OpenGLEngine
-  src/Aliases.hpp
-  src/Engine.hpp
-  src/Engine.cpp
-  src/Shader.hpp
-  src/Shader.cpp
-  src/Util.hpp
-  src/Util.cpp
-
-  example/Main.cpp
+add_library(opengl_engine
+  engine/src/Aliases.hpp
+  engine/src/Engine.hpp
+  engine/src/Engine.cpp
+  engine/src/Shader.hpp
+  engine/src/Shader.cpp
+  engine/src/Util.hpp
+  engine/src/Util.cpp
 )
-target_link_libraries(OpenGLEngine
+target_link_libraries(opengl_engine
   gl3w
-  E:/Library/GLFW3.3.1/lib-mingw/libglfw3.a
+  ${CONAN_LIBS}
+)
+
+add_executable(opengl_example
+  example/src/Main.cpp
+)
+target_link_libraries(opengl_example
+  opengl_engine // Includes link targets in `opengl_engine`
 )
