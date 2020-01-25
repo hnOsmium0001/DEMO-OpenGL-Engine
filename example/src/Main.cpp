@@ -71,6 +71,34 @@ public:
 			1.0f, -1.0f, 0.0f,		0.0f, 0.0f, 1.0f
 		};
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		// HOEngine::Vertex<float[3], float[3]> v[3];
+		// // v[0].Get<0>()[0] = 0.0f;
+		// // v[0].Get<0>()[1] = 1.0f;
+		// // v[0].Get<0>()[2] = 0.0f;
+		// // v[0].Get<1>()[0] = 1.0f;
+		// // v[0].Get<1>()[1] = 0.0f;
+		// // v[0].Get<1>()[2] = 0.0f;
+		// v[0].Attr<0>() << 0.0f << 1.0f << 0.0f;
+		// v[0].Attr<1>() << 1.0f << 0.0f << 0.0f;
+		// // v[1].Get<0>()[0] = -1.0f;
+		// // v[1].Get<0>()[1] = -1.0f;
+		// // v[1].Get<0>()[2] = 0.0f;
+		// // v[1].Get<1>()[0] = 0.0f;
+		// // v[1].Get<1>()[1] = 1.0f;
+		// // v[1].Get<1>()[2] = 0.0f;
+		// v[0].Attr<0>() << -1.0f << -1.0f << 0.0f;
+		// v[0].Attr<1>() << 0.0f << 1.0f << 0.0f;
+		// // v[2].Get<0>()[0] = 1.0f;
+		// // v[2].Get<0>()[1] = -1.0f;
+		// // v[2].Get<0>()[2] = 0.0f;
+		// // v[2].Get<1>()[0] = 0.0f;
+		// // v[2].Get<1>()[1] = 0.0f;
+		// // v[2].Get<1>()[2] = 1.0f;
+		// v[0].Attr<0>() << 1.0f << -1.0f << 0.0f;
+		// v[0].Attr<1>() << 0.0f << 0.0f << 1.0f;
+		// glBufferData(GL_ARRAY_BUFFER, sizeof(v), v, GL_STATIC_DRAW);
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		while (!glfwWindowShouldClose(*window)) {

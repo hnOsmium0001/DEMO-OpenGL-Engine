@@ -37,8 +37,8 @@ public:
 
 std::optional<std::string> ReadFileAsStr(const std::string& path);
 
-template<int N, typename... Ts>
-using NthTypeOf = typename std::tuple_element<N, std::tuple<Ts...>>::type;
+template<int32_t n, typename... Ts>
+using NthTypeOf = typename std::tuple_element<n, std::tuple<Ts...>>::type;
 
 template <typename T>
 struct ToGL {
