@@ -1,12 +1,12 @@
 #version 330 core
 
-in vec3 posIn;
-in vec3 colorIn;
+layout(location = 0) in vec3 posIn;
+layout(location = 1) in vec3 colorIn;
 
-out vec3 pos;
+out vec4 pos;
 out vec3 color;
 
 void main() {
-  pos = posIn;
+  pos = vec4(posIn, 0.0);
   color = colorIn;
 }

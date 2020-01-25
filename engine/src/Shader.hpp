@@ -13,7 +13,7 @@ private:
   Shader(GLuint handle) noexcept;
 
 public:
-  static std::optional<Shader> New(const std::string& source);
+  static std::optional<Shader> New(GLenum type, const std::string& source);
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
   Shader(Shader&& source) noexcept;

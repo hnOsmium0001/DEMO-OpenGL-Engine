@@ -59,25 +59,27 @@ public:
 		// Initialization
 		glBindVertexArray(vao);
 		{
-			constexpr GLuint stride = sizeof(float) * 3 + sizeof(float) * 3;
+			constexpr GLsizei posAttribSize = sizeof(GLfloat) * 3;
+			constexpr GLsizei colorAttribSize = sizeof(GLfloat) * 3;
+			constexpr GLsizei stride = posAttribSize + colorAttribSize;
 			// Position attribute
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*) 0);
 
 			// Color attribute
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*) posAttribSize);
 		}
 		glBindVertexArray(0);
 
 		// Data
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		static float vertices[] = {
-			0.0f, 1.0f, 0.0f,		1.0f, 1.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f,		1.0f, 1.0f, 1.0f,
-			1.0f, -1.0f, 0.0f,		1.0f, 1.0f, 1.0f
+		static GLfloat vertices[] = {
+			0.0f, 1.0f, 0.0f,		1.0f, 0.0f, 0.0f,
+			-1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,
+			1.0f, -1.0f, 0.0f,		0.0f, 0.0f, 1.0f
 		};
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

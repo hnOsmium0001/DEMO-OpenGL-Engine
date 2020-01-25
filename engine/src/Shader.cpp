@@ -10,8 +10,8 @@ Shader::Shader(GLuint handle) noexcept
   : handle_{ handle } {
 }
 
-std::optional<Shader> Shader::New(const std::string& source) {
-  GLuint handle = glCreateShader(GL_VERTEX_SHADER);
+std::optional<Shader> Shader::New(GLenum type, const std::string& source) {
+  GLuint handle = glCreateShader(type);
   if (handle == 0) return {};
   // Create a shader (C++ object) first so that on errors the allocated GL shader object can be deleted automatically
   Shader shader(handle);
@@ -68,9 +68,9 @@ ShaderProgram::ShaderProgram(GLuint handle) noexcept
 }
 
 std::optional<ShaderProgram> ShaderProgram::New(const std::string& vshSource, const std::string& fshSource) {
-  std::optional<Shader> vsh = Shader::New(vshSource);
+  std::optional<Shader> vsh = Shader::New(GL_VERTEX_SHADER, vshSource);
   if (!vsh) return {};
-  std::optional<Shader> fsh = Shader::New(fshSource);
+  std::optional<Shader> fsh = Shader::New(GL_FRAGMENT_SHADER, fshSource);
   if (!fsh) return {};
   return ShaderProgram::New(vsh.value(), fsh.value());
 }
