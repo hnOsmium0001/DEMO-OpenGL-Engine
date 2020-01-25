@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Engine.hpp>
 #include <Shader.hpp>
+#include <GLAttribute.hpp>
 
 void keyCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
 }
@@ -49,29 +50,17 @@ public:
 
 		auto vshSource = HOEngine::ReadFileAsStr("example/resources/triangle.vsh").value_or("");
 		auto fshSource = HOEngine::ReadFileAsStr("example/resources/triangle.fsh").value_or("");
-		std::cout << vshSource << "\n\n\n" << fshSource;
-		auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
-		if (!program) {
+		auto programOpt = HOEngine::ShaderProgram::New(vshSource, fshSource);
+		if (!programOpt) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;
 		}
+		auto program = std::move(*programOpt);
 
 		// Initialization
 		glBindVertexArray(vao);
-		{
-			constexpr GLsizei posAttribSize = sizeof(GLfloat) * 3;
-			constexpr GLsizei colorAttribSize = sizeof(GLfloat) * 3;
-			constexpr GLsizei stride = posAttribSize + colorAttribSize;
-			// Position attribute
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*) 0);
-
-			// Color attribute
-			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*) posAttribSize);
-		}
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		HOEngine::AttributeLayout<float[3], float[3]>::SetupGL();
 		glBindVertexArray(0);
 
 		// Data
@@ -87,6 +76,8 @@ public:
 		while (!glfwWindowShouldClose(*window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearColor(175.0f / 255.0f, 175.0f / 255.0f, 175.0f / 255.0f, 1.0f);
+
+			glUseProgram(program);
 
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 1 * 3);

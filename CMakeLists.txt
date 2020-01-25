@@ -25,6 +25,7 @@ add_library(opengl_engine
   engine/src/Shader.cpp
   engine/src/Util.hpp
   engine/src/Util.cpp
+  engine/src/GLAttribute.hpp
 )
 target_link_libraries(opengl_engine
   gl3w

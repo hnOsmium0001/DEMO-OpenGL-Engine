@@ -72,6 +72,19 @@
     "ratio": "cpp",
     "sstream": "cpp",
     "string_view": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "clocale": "cpp",
+    "deque": "cpp",
+    "iomanip": "cpp",
+    "numeric": "cpp",
+    "queue": "cpp",
+    "random": "cpp",
+    "xlocbuf": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xloctime": "cpp",
+    "*.tcc": "cpp",
+    "memory_resource": "cpp",
+    "cinttypes": "cpp"
   }
 }
