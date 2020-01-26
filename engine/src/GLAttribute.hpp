@@ -14,23 +14,46 @@ public:
   static constexpr size_t elements = sizeof...(As);
   static constexpr size_t bytes = (sizeof(As) + ... + 0);
 
-  static void SetupGL() {
+  template <size_t n>
+  using AttribAt = NthTypeOf<n, As...>;
+  template <size_t n>
+  using ElmAt = typename std::remove_all_extents<NthTypeOf<n, As...>>::type;
+  template <size_t n>
+  static constexpr size_t lenAt = std::extent<NthTypeOf<n, As...>>::value;
+
+  template <size_t n>
+  inline static constexpr size_t AttributeOffset() {
+    if constexpr (n == 0) {
+      return 0;
+    } else {
+      return AttributeOffset<n - 1>() + sizeof(AttribAt<n>);
+    }
+  }
+
+  template <size_t nthAttribute, size_t nthElement>
+  inline static constexpr size_t ElementOffset() {
+    return AttributeOffset<nthAttribute>() + sizeof(ElmAt<nthAttribute>) * nthElement;
+  }
+
+  template <size_t n>
+  inline static size_t ElementOffset(size_t index) {
+    return AttributeOffset<n>() + sizeof(ElmAt<n>) * index;
+  }
+
+  inline static void SetupGL() {
     SetupOne<0>(0);
   }
 
 private:
-  template <int32_t n>
+  template <size_t n>
   inline static void SetupOne(size_t offset) {
     static_assert(n < elements, "Attribute index out of bounds!");
 
     using Arr = NthTypeOf<n, As...>;
     static_assert(std::is_array<Arr>::value, "AttributeLayout parameters must be arrays!");
 
-    using Elm = typename std::remove_all_extents<Arr>::type;
-    constexpr size_t len = std::extent<Arr>::value;
-
     glEnableVertexAttribArray(n);
-    glVertexAttribPointer(n, len, ToGL<Elm>::value, GL_FALSE, bytes, (void*) offset);
+    glVertexAttribPointer(n, lenAt<n>, ToGL<ElmAt<n>>::value, GL_FALSE, bytes, (void*) offset);
 
     if constexpr (n < elements - 1) SetupOne<n + 1>(offset + sizeof(Arr));
   }
@@ -38,10 +61,13 @@ private:
 
 template <typename... As>
 class Vertex : public AttributeLayout<As...> {
-private:
-  std::tuple<As...> data;
+public:
+  uint8_t data[bytes];
 
 public:
+  Vertex() : data{} {
+  }
+
   template <int32_t n>
   class Attribute {
   private:
@@ -62,25 +88,23 @@ public:
         throw std::runtime_error("Attribute array storage index out of bounds");
       }
 
-      std::get<n>(vertex_->data)[currentIndex_] = value;
+      auto offset = ElementOffset<n>(currentIndex_);
+      uint8_t* data = vertex_->data;
+      std::memcpy(data + offset, &value, sizeof(Elm));
       ++currentIndex_;
       return *this;
     }
   };
 
-  template <int32_t n>
+  template <size_t n>
   Attribute<n> Attr() {
     return Attribute<n>(this);
   }
 
-  template <int32_t n>
-  typename Attribute<n>::Arr& Get() {
-    return std::get<n>(data);
-  }
-
-  template <int32_t n>
-  const typename Attribute<n>::Arr& Get() const {
-    return std::get<n>(data);
+  template <size_t n, size_t i>
+  typename Attribute<n>::Elm* Get() {
+    auto offset = ElementOffset<n, i>();
+    return reinterpret_cast<typename Attribute<n>::Elm*>(data + offset);
   }
 };
 
