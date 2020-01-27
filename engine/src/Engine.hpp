@@ -32,21 +32,22 @@ private:
 	Window(Dimension, GLFWwindow*) noexcept;
 
 public:
-	inline static Window* FromGLFW(GLFWwindow*);
+	inline static Window* FromGLFW(GLFWwindow* handle);
 	static std::unique_ptr<Window> New(const Dimension& dim, const std::string& title, const WindowCallbacks& callbacks);
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
-	Window(Window&&) noexcept;
-	Window& operator=(Window&&) noexcept;
+	Window(Window&& source) noexcept;
+	Window& operator=(Window&& source) noexcept;
 	~Window() noexcept;
+
+	void Resize(int32_t width, int32_t height);
 
 	Dimension& dim() { return dim_; }
 	const Dimension& dim() const { return dim_; }
 	operator GLFWwindow*() const { return handle_; }
 
 	// Update window size fields of the attached window
-	inline static void HandleResize(GLFWwindow* handle, int32_t width, int32_t height);
-	inline static void HandleResize(Window* window, int32_t width, int32_t height);
+	static void HandleResize(GLFWwindow* handle, int32_t width, int32_t height);
 };
 
 class ApplicationBase {

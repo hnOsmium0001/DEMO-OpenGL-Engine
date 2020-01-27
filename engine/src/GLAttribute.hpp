@@ -10,7 +10,7 @@
 namespace HOEngine {
 
 template <typename... As>
-class AttributeLayout {
+class VertexAttributes {
 public:
   static constexpr size_t elements = sizeof...(As);
   static constexpr size_t bytes = (sizeof(As) + ... + 0);
@@ -41,7 +41,7 @@ public:
     return AttributeOffset<n>() + sizeof(ElmAt<n>) * index;
   }
 
-  inline static void SetupGL() {
+  inline static void SetupPointers() {
     SetupOne<0>(0);
   }
 
@@ -56,21 +56,18 @@ private:
 
     if constexpr (n < elements - 1) SetupOne<n + 1>(offset + sizeof(AttribAt<n>));
   }
-};
 
-template <typename... As>
-class Vertex : public AttributeLayout<As...> {
-public:
+private:
   uint8_t data[bytes];
 
 public:
-  Vertex() : data{} {
+  VertexAttributes() : data{} {
   }
 
   template <int32_t n>
   class Attribute {
   private:
-    Vertex<As...>* vertex_;
+    VertexAttributes<As...>* vertex_;
     size_t currentIndex_ = 0;
 
   public:
@@ -78,7 +75,7 @@ public:
     using Elm = ElmAt<n>;
     static constexpr size_t len = lenAt<n>;
 
-    Attribute(Vertex<As...>* vertex)
+    Attribute(VertexAttributes<As...>* vertex)
       : vertex_{ vertex }, currentIndex_{ 0 } {
     }
 
@@ -108,13 +105,13 @@ public:
 
   template <size_t n, size_t i>
   ElmAt<n>* Get() {
-    auto offset = ElementOffset<n, i>();
+    auto offset = ElementOffset<n, i>;
     return reinterpret_cast<ElmAt<n>*>(data + offset);
   }
 
   template <size_t n, size_t i>
   void Set(ElmAt<n> value) {
-    auto offset = ElementOffset<n, i>();
+    auto offset = ElementOffset<n, i>;
     std::memcpy(data + offset, &value, sizeof(Attribute<n>::Elm));
   }
 };

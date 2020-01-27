@@ -5,26 +5,31 @@
 #include <Shader.hpp>
 #include <GLAttribute.hpp>
 
-void keyCallback(GLFWwindow* window, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
+void resizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
+	HOEngine::Window::HandleResize(handle, width, height);
+	glViewport(0, 0, width, height);
 }
 
-void charCallback(GLFWwindow* window, uint32_t codepoint) {
+void keyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
 }
 
-void cursorPosCallback(GLFWwindow* window, double x, double y) {
+void charCallback(GLFWwindow* handle, uint32_t codepoint) {
 }
 
-void cursorButtonCallback(GLFWwindow* window, int32_t button, int32_t action, int32_t mods) {
+void cursorPosCallback(GLFWwindow* handle, double x, double y) {
 }
 
-void scrollCallback(GLFWwindow* window, double x, double y) {
+void cursorButtonCallback(GLFWwindow* handle, int32_t button, int32_t action, int32_t mods) {
+}
+
+void scrollCallback(GLFWwindow* handle, double x, double y) {
 }
 
 class Application : public HOEngine::ApplicationBase {
 public:
 	void Run() {
 		auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
-			.resizeCallback = {},
+			.resizeCallback = resizeCallback,
 			.keyCallback = keyCallback,
 			.charCallback = charCallback,
 			.cursorPosCallback = cursorPosCallback,
@@ -61,12 +66,12 @@ public:
 		// Initialization
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		HOEngine::AttributeLayout<float[3], float[3]>::SetupGL();
+		HOEngine::VertexAttributes<float[3], float[3]>::SetupPointers();
 		glBindVertexArray(0);
 
 		// Data
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		HOEngine::Vertex<float[3], float[3]> verts[3];
+		HOEngine::VertexAttributes<float[3], float[3]> verts[3];
 		verts[0].Attr<0>() << 0.0f, 1.0f, 0.0f;
 		verts[0].Attr<1>() << 1.0f, 0.0f, 0.0f;
 		verts[1].Attr<0>() << -1.0f, -1.0f, 0.0f;
