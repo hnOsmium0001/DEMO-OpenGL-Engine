@@ -3,6 +3,7 @@
 #include <tuple>
 #include <iterator>
 #include <type_traits>
+#include <stdexcept>
 #include <GL/gl3w.h>
 #include "Util.hpp"
 
@@ -48,14 +49,12 @@ private:
   template <size_t n>
   inline static void SetupOne(size_t offset) {
     static_assert(n < elements, "Attribute index out of bounds!");
-
-    using Arr = NthTypeOf<n, As...>;
-    static_assert(std::is_array<Arr>::value, "AttributeLayout parameters must be arrays!");
+    static_assert(std::is_array<AttribAt<n>>::value, "AttributeLayout parameters must be arrays!");
 
     glEnableVertexAttribArray(n);
     glVertexAttribPointer(n, lenAt<n>, ToGL<ElmAt<n>>::value, GL_FALSE, bytes, (void*) offset);
 
-    if constexpr (n < elements - 1) SetupOne<n + 1>(offset + sizeof(Arr));
+    if constexpr (n < elements - 1) SetupOne<n + 1>(offset + sizeof(AttribAt<n>));
   }
 };
 
@@ -75,9 +74,9 @@ public:
     size_t currentIndex_ = 0;
 
   public:
-    using Arr = NthTypeOf<n, As...>;
-    using Elm = typename std::remove_all_extents<Arr>::type;
-    static constexpr size_t len = std::extent<Arr>::value;
+    using Arr = AttribAt<n>;
+    using Elm = ElmAt<n>;
+    static constexpr size_t len = lenAt<n>;
 
     Attribute(Vertex<As...>* vertex)
       : vertex_{ vertex }, currentIndex_{ 0 } {
@@ -89,10 +88,16 @@ public:
       }
 
       auto offset = ElementOffset<n>(currentIndex_);
-      uint8_t* data = vertex_->data;
+      auto data = vertex_->data;
       std::memcpy(data + offset, &value, sizeof(Elm));
       ++currentIndex_;
       return *this;
+    }
+
+    // Syntax sugar for using `v << 0.0f, 1.0f, 2.0f` instead of the weird-ish `v << 0.0f << 1.0f << 2.0f`
+    // Note that `v << 0.0f, 1.0f, 2.0f` will be evaluated as `((v << 0.0f), 1.0f), 2.0f`
+    Attribute& operator,(Elm value) {
+      return operator<<(value);
     }
   };
 
@@ -102,9 +107,15 @@ public:
   }
 
   template <size_t n, size_t i>
-  typename Attribute<n>::Elm* Get() {
+  ElmAt<n>* Get() {
     auto offset = ElementOffset<n, i>();
-    return reinterpret_cast<typename Attribute<n>::Elm*>(data + offset);
+    return reinterpret_cast<ElmAt<n>*>(data + offset);
+  }
+
+  template <size_t n, size_t i>
+  void Set(ElmAt<n> value) {
+    auto offset = ElementOffset<n, i>();
+    std::memcpy(data + offset, &value, sizeof(Attribute<n>::Elm));
   }
 };
 

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>
+#include <cmath>
 #include <Engine.hpp>
 #include <Shader.hpp>
 #include <GLAttribute.hpp>
@@ -50,12 +52,11 @@ public:
 
 		auto vshSource = HOEngine::ReadFileAsStr("example/resources/triangle.vsh").value_or("");
 		auto fshSource = HOEngine::ReadFileAsStr("example/resources/triangle.fsh").value_or("");
-		auto programOpt = HOEngine::ShaderProgram::New(vshSource, fshSource);
-		if (!programOpt) {
+		auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
+		if (!program) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;
 		}
-		auto program = std::move(*programOpt);
 
 		// Initialization
 		glBindVertexArray(vao);
@@ -66,46 +67,36 @@ public:
 		// Data
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		HOEngine::Vertex<float[3], float[3]> verts[3];
-		// verts[0].Get<0>()[0] = 0.0f;
-		// verts[0].Get<0>()[1] = 1.0f;
-		// verts[0].Get<0>()[2] = 0.0f;
-		// verts[0].Get<1>()[0] = 1.0f;
-		// verts[0].Get<1>()[1] = 0.0f;
-		// verts[0].Get<1>()[2] = 0.0f;
-		verts[0].Attr<0>() << 0.0f << 1.0f << 0.0f;
-		verts[0].Attr<1>() << 1.0f << 0.0f << 0.0f;
-		// verts[1].Get<0>()[0] = -1.0f;
-		// verts[1].Get<0>()[1] = -1.0f;
-		// verts[1].Get<0>()[2] = 0.0f;
-		// verts[1].Get<1>()[0] = 0.0f;
-		// verts[1].Get<1>()[1] = 1.0f;
-		// verts[1].Get<1>()[2] = 0.0f;
-		verts[1].Attr<0>() << -1.0f << -1.0f << 0.0f;
-		verts[1].Attr<1>() << 0.0f << 1.0f << 0.0f;
-		// *verts[2].Get<0, 0>() = 1.0f;
-		// *verts[2].Get<0, 1>() = -1.0f;
-		// *verts[2].Get<0, 2>() = 0.0f;
-		// *verts[2].Get<1, 0>() = 0.0f;
-		// *verts[2].Get<1, 1>() = 0.0f;
-		// *verts[2].Get<1, 2>() = 1.0f;
-		verts[2].Attr<0>() << 1.0f << -1.0f << 0.0f;
-		verts[2].Attr<1>() << 0.0f << 0.0f << 1.0f;
+		verts[0].Attr<0>() << 0.0f, 1.0f, 0.0f;
+		verts[0].Attr<1>() << 1.0f, 0.0f, 0.0f;
+		verts[1].Attr<0>() << -1.0f, -1.0f, 0.0f;
+		verts[1].Attr<1>() << 0.0f, 1.0f, 0.0f;
+		verts[2].Attr<0>() << 1.0f, -1.0f, 0.0f;
+		verts[2].Attr<1>() << 0.0f, 0.0f, 1.0f;
 		glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+		float time = 0;
 		while (!glfwWindowShouldClose(*window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearColor(175.0f / 255.0f, 175.0f / 255.0f, 175.0f / 255.0f, 1.0f);
 
-			glUseProgram(program);
+			glUseProgram(*program);
+			GLuint coefRUniform = glGetUniformLocation(*program, "coefR");
+			GLuint coefGUniform = glGetUniformLocation(*program, "coefG");
+			GLuint coefBUniform = glGetUniformLocation(*program, "coefB");
+			glUniform1f(coefRUniform, static_cast<float>(std::sin(time)) * 0.5f + 0.5f);
+			glUniform1f(coefGUniform, static_cast<float>(std::sin(time + 3.1415926535f / 2)) * 0.5f + 0.5f);
+			glUniform1f(coefBUniform, static_cast<float>(std::sin(time + 3.1415926535f)) * 0.5f + 0.5f);
 
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 1 * 3);
 			glBindVertexArray(0);
 
 			glfwSwapBuffers(*window);
-
 			glfwPollEvents();
+
+			time += 0.01f;
 		}
 	}
 };
