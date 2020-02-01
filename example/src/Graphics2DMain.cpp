@@ -124,12 +124,9 @@ public:
         glClearColor(175.0f / 255.0f, 175.0f / 255.0f, 175.0f / 255.0f, 1.0f);
  
         glUseProgram(*program);
-        GLuint coefRUniform = glGetUniformLocation(*program, "coefR");
-        GLuint coefGUniform = glGetUniformLocation(*program, "coefG");
-        GLuint coefBUniform = glGetUniformLocation(*program, "coefB");
-        glUniform1f(coefRUniform, static_cast<float>(std::sin(time)) * 0.5f + 0.5f);
-        glUniform1f(coefGUniform, static_cast<float>(std::sin(time + 3.1415926535f / 2)) * 0.5f + 0.5f);
-        glUniform1f(coefBUniform, static_cast<float>(std::sin(time + 3.1415926535f)) * 0.5f + 0.5f);
+        glUniform1f(glGetUniformLocation(*program, "coefR"), static_cast<float>(std::sin(time)) * 0.5f + 0.5f);
+        glUniform1f(glGetUniformLocation(*program, "coefG"), static_cast<float>(std::sin(time + 3.1415926535f / 2)) * 0.5f + 0.5f);
+        glUniform1f(glGetUniformLocation(*program, "coefB"), static_cast<float>(std::sin(time + 3.1415926535f)) * 0.5f + 0.5f);
  
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 1 * 3);

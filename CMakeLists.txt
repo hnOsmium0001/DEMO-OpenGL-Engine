@@ -33,10 +33,19 @@ target_link_libraries(opengl_engine
 )
 
 include_directories(engine/src)
+
 add_executable(opengl_example
-  example/src/Main.cpp
+  example/src/Graphics2DMain.cpp
 )
 target_link_libraries(opengl_example
+  # Includes link targets in `opengl_engine`
+  opengl_engine
+)
+
+add_executable(opengl_3d_example
+  example/src/Graphics3DMain.cpp
+)
+target_link_libraries(opengl_3d_example
   # Includes link targets in `opengl_engine`
   opengl_engine
 )

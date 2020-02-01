@@ -80,3 +80,7 @@ template<> struct ToGL<uint8_t> {
 };
 
 } // namespace HOEngine
+
+constexpr float operator"" _deg(long double degrees) {
+  return degrees * 3.14159265358979323846264L / 180;;
+}
