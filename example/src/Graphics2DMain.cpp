@@ -32,7 +32,7 @@ void scrollCallback(GLFWwindow* handle, double x, double y) {
  
 class Application : public HOEngine::ApplicationBase {
 public:
-  void Run() override {
+  void Run() {
     auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
       .resizeCallback = resizeCallback,
       .keyCallback = keyCallback,

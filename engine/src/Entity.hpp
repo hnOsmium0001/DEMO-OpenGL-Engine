@@ -10,7 +10,12 @@ namespace HOEngine {
 
 class Component {
 public:
-	virtual ~Component();
+	Component() noexcept = default;
+	virtual ~Component() noexcept = default;
+	Component(const Component&) = default;
+	Component& operator=(const Component&) = default;
+	Component(Component&&) = default;
+	Component& operator=(Component&&) = default;
 	virtual const UUID& GetTypeID() const = 0;
 };
 
@@ -19,39 +24,44 @@ private:
 	std::unordered_map<uint32_t, std::unique_ptr<Component>> components;
 
 public:
+	Entity(const Entity&) = default;
+	Entity& operator=(const Entity&) = default;
+	Entity(Entity&&) = default;
+	Entity& operator=(Entity&&) = default;
+
 	Component* GetComponent(const UUID& typeID);
 	void AddComponent(std::unique_ptr<Component> component);
 	void RemoveComponent(const UUID& typeID);
 	void RemoveAllComponents();
 };
 
-class EntityID {
-public:
-	const uint32_t idx;
-	const uint32_t gen;
+struct EntityID {
+	const size_t idx;
+	const uint64_t gen;
 };
 
 class EntitiesStorage {
 public:
 	struct Entry {
 		Entity value;
-		uint32_t gen;
+		uint64_t gen;
 	};
-	static const uint32_t INVALID_GEN = 0;
+	static const uint64_t INVALID_GEN = 0;
 
 private:
 	std::vector<Entry> entities;
-	std::queue<uint32_t> tombstones;
-	uint32_t size = 0;
-	uint32_t nextGen = 1; // Generation 0 is reserved for static null
+	std::queue<size_t> tombstones;
+	uint64_t nextGen = 1; // Generation 0 is reserved for static null
 
 public:
 	Entity* Get(EntityID id);
 	EntityID Add(Entity entity);
 	void Remove(EntityID id);
 
+	size_t Size() const;
+
 private:
-	std::optional<uint32_t> NextAvailableSpot() const;
+	std::optional<uint64_t> NextAvailableSpot();
 };
 
 } // namespace HOEngine

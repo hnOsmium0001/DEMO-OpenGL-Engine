@@ -14,7 +14,7 @@ add_library(opengl_engine
   engine/src/Engine.hpp
   engine/src/Engine.cpp
 	engine/src/Entity.hpp
-	engine/src/Engine.cpp
+	engine/src/Entity.cpp
   engine/src/GLWrapper.hpp
   engine/src/GLWrapper.cpp
 )

@@ -85,6 +85,9 @@
     "xloctime": "cpp",
     "*.tcc": "cpp",
     "memory_resource": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "compare": "cpp",
+    "map": "cpp",
+    "xtree": "cpp"
   }
 }

@@ -4,36 +4,39 @@
 #include "Engine.hpp"
 #include "GLWrapper.hpp"
 
-void resizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
-  HOEngine::Window::HandleResize(handle, width, height);
-  glViewport(0, 0, width, height);
+void ResizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
+  auto window = HOEngine::Window::FromGLFW(handle);
+  if (window) {
+    window->Resize(width, height);
+    glViewport(0, 0, width, height);
+  }
 }
  
-void keyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
+void KeyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
 }
  
-void charCallback(GLFWwindow* handle, uint32_t codepoint) {
+void CharCallback(GLFWwindow* handle, uint32_t codepoint) {
 }
  
-void cursorPosCallback(GLFWwindow* handle, double x, double y) {
+void CursorPosCallback(GLFWwindow* handle, double x, double y) {
 }
  
-void cursorButtonCallback(GLFWwindow* handle, int32_t button, int32_t action, int32_t mods) {
+void CursorButtonCallback(GLFWwindow* handle, int32_t button, int32_t action, int32_t mods) {
 }
  
-void scrollCallback(GLFWwindow* handle, double x, double y) {
+void ScrollCallback(GLFWwindow* handle, double x, double y) {
 }
 
 class Application : public HOEngine::ApplicationBase {
 public:
-  void Run() override {
+  void Run() {
     auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
-      .resizeCallback = resizeCallback,
-      .keyCallback = keyCallback,
-      .charCallback = charCallback,
-      .cursorPosCallback = cursorPosCallback,
-      .cursorButtonCallback = cursorButtonCallback,
-      .scrollCallback = scrollCallback
+      .resizeCallback = ResizeCallback,
+      .keyCallback = KeyCallback,
+      .charCallback = CharCallback,
+      .cursorPosCallback = CursorPosCallback,
+      .cursorButtonCallback = CursorButtonCallback,
+      .scrollCallback = ScrollCallback
     });
     if (window == nullptr) {
       std::cerr << "Unable to create GLFW window, aborting\n";

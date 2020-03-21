@@ -1,5 +1,5 @@
 [requires]
-#imgui/1.74
+imgui/1.74
 glm/0.9.9.7
 glfw/3.3@bincrafters/stable
 gl3w/0.2@tuebel/testing

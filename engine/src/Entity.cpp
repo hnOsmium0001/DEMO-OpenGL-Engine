@@ -1,7 +1,7 @@
 #include <utility>
 #include "Entity.hpp"
 
-namespace HOEngine {
+using namespace HOEngine;
 
 namespace {
 
@@ -11,7 +11,7 @@ namespace {
 	uint32_t FindCompRID(const UUID& typeID) {
 		auto it = runtimeCompMapping.find(typeID);
 		if (it == runtimeCompMapping.end()) {
-			runtimeCompMapping.insert(typeID, nextRID);
+			runtimeCompMapping.insert({typeID, nextRID});
 			return nextRID++;
 		} else {
 			return it->second;
@@ -32,7 +32,7 @@ Component* Entity::GetComponent(const UUID& typeID) {
 void Entity::AddComponent(std::unique_ptr<Component> component) {
 	if (!component) return;
 	auto rid = FindCompRID(component->GetTypeID());
-	components.insert(rid, std::move(component));
+	components[rid] = std::move(component);
 }
 void Entity::RemoveComponent(const UUID &typeID) {
 	auto rid = FindCompRID(typeID);
@@ -54,9 +54,9 @@ Entity* EntitiesStorage::Get(EntityID id) {
 }
 EntityID EntitiesStorage::Add(Entity entity) {
 	auto gen = nextGen++;
-	auto entry = Entry{std::move(entryity), gen};
+	auto entry = Entry{std::move(entity), gen};
 	auto next = NextAvailableSpot();
-	uint32_t idx;
+	uint64_t idx;
 	if (next.has_value()) {
 		idx = *next;
 		entities[idx] = std::move(entry);
@@ -64,21 +64,17 @@ EntityID EntitiesStorage::Add(Entity entity) {
 		idx = entities.size();
 		entities.push_back(std::move(entry));
 	}
-	++size;
 	return EntityID{idx, gen};
 }
 void EntitiesStorage::Remove(EntityID id) {
 	entities[id.idx].value.RemoveAllComponents(); // Save space for tombstone 
 	entities[id.idx].gen = INVALID_GEN;
 	tombstones.push(id.idx);
-	--size;
 }
 
-std::optional<uint32_t> EntitiesStorage::NextAvailableSpot() const {
+std::optional<uint64_t> EntitiesStorage::NextAvailableSpot() {
 	if (tombstones.empty()) return {};
-	auto result = tombstones.top();
+	auto result = tombstones.front();
 	tombstones.pop();
 	return result;
 }
-
-} // namespace HOEngine

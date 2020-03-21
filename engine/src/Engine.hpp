@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <compare>
 #include <stdexcept>
 #include <iostream>
 #include <GL/gl3w.h>
@@ -12,17 +13,29 @@
 #include <glm/glm.hpp>
 
 namespace HOEngine {
+	class UUID {
+	private:
+		uint64_t msb_;
+		uint64_t lsb_;
 
-class UUID {
-public:
-	const uint64_t lSig;
-	const uint64_t mSig;
+	public:
+		/// Generate a type 4 UUID
+		static UUID Random(); 
+		UUID(uint64_t msb, uint64_t lsb) : msb_{msb}, lsb_{lsb} {}
 
-	/// Generate a type 1 UUID
-	static UUID Chrono();
-	/// Generate a type 4 UUID
-	static UUID Random(); 
-};
+		const uint64_t& msb() const { return msb_; }
+		const uint64_t& lsb() const { return lsb_; }
+		auto operator<=>(const UUID&) const = default;
+	};
+}
+namespace std {
+	template<>
+	struct hash<HOEngine::UUID> {
+		size_t operator()(const HOEngine::UUID& uuid) const;
+	};
+}
+
+namespace HOEngine {
 
 class Dimension {
 public:
@@ -110,11 +123,19 @@ private:
 	Dimension dim_;
 	GLFWwindow* handle_;
 
-	Window(Dimension, GLFWwindow*) noexcept;
-
 public:
+  /// Get the HOEngine::Window coutnerpart to the given GLFWwindow* if present,
+  /// otherwise returns `nullptr`.
 	static Window* FromGLFW(GLFWwindow* handle);
+  /// Automatically handle fetching HOEngine::Window and internal resizing logic.
+  /// Used by default callbacks when user-defined callbacks are not provided,
+  /// not recommanded for direct usages.
+  static void HandleGLFWResize(GLFWwindow* handle, int32_t width, int32_t height);
 	static std::unique_ptr<Window> New(const Dimension& dim, const std::string& title, const WindowCallbacks& callbacks);
+
+  /// Constructor for creating from an already-created GLFWwindow. Main purpose is
+  /// for internal usage, not recomandded for direct use.
+  Window(Dimension, GLFWwindow*) noexcept;
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	Window(Window&& source) noexcept;
@@ -134,23 +155,22 @@ class ApplicationBase {
 public:
 	ApplicationBase();
 	~ApplicationBase() noexcept;
-
-	virtual void Run() = 0;
 };
-void PrintGLFWError(GLFWWindow* handle, int32_t width, int32_t height();
+
+void PrintGLFWError(int32_t code, const char* msg);
 
 // TODO
 class Camera {
 private:
 	glm::vec3 look;
 	float fov = 90.0f;
-	float near = 0.1f;
-	float far = 1000.0f;
+	float nearPane = 0.1f;
+	float farPane = 1000.0f;
 
 public:
 	void LookAt(glm::vec3 look);
 	void SetFOV(float fov);
-	void SetPanes(float near, float far);
+	void SetPanes(float nearPane, float farPane);
 };
 
 } // namespace HOEngine

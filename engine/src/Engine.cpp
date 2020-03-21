@@ -1,29 +1,32 @@
 #include <utility>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <random>
 #include <limits>
 #include "Engine.hpp"
 
-namespace HOEngine {
-
-UUID UUID::Chrono() {
-	// TODO
-	return UUID{0, 0};
-}
+using namespace HOEngine;
 
 UUID UUID::Random() {
 	auto rd = std::random_device{};
 	auto seed = std::mt19937_64{rd()};
 	auto gen = std::uniform_int_distribution<uint64_t>{};
 
-	auto lstBt = gen(seed);
-	auto mstBt = gen(seed);
-	// Byte #: 7766554433221100 
-	lstBt &= 0xff0fffffffffffff; // Clear version on 6th byte
-	lstBt |= 0x0040000000000000; // Set to version 4
-	mstBt &= 0xffffffffffffff3f; // Clear variant on (8 on lstBt + 0th) = 8th byte 
-	mstBt |= 0x0000000000000080; // Set to IETF variant
-	return UUID{lower, higher};
+	auto msbits = gen(seed);
+	auto lsbits = gen(seed);
+	// Byte #s: 7766554433221100 
+	msbits &= 0xff0fffffffffffff; // Clear version on 6th byte
+	msbits |= 0x0040000000000000; // Set to version 4
+	lsbits &= 0xffffffffffffff3f; // Clear variant on (8 on msbits + 0th) = 8th byte 
+	lsbits |= 0x0000000000000080; // Set to IETF variant
+	return UUID{msbits, lsbits};
+}
+
+size_t std::hash<UUID>::operator()(const UUID& uuid) const {
+	auto h1 = std::hash<uint64_t>()(uuid.msb());
+	auto h2 = std::hash<uint64_t>()(uuid.lsb());
+	return h1 ^ (h2 << 1);
 }
 
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim) {
@@ -59,6 +62,13 @@ Window* Window::FromGLFW(GLFWwindow* handle) {
 	return static_cast<Window*>(glfwGetWindowUserPointer(handle));
 }
 
+void Window::HandleGLFWResize(GLFWwindow* handle, int32_t width, int32_t height) {
+	auto window = Window::FromGLFW(handle);
+	if (window) {
+		window->Resize(width, height);
+	}
+}
+
 std::unique_ptr<Window> Window::New(const Dimension& dim, const std::string& title, const WindowCallbacks& callbacks) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -81,7 +91,7 @@ std::unique_ptr<Window> Window::New(const Dimension& dim, const std::string& tit
 		glfwSetFramebufferSizeCallback(handle, callbacks.resizeCallback.value());
 	} else {
 		// Fallback size callback to automatically update the dimension field
-		glfwSetFramebufferSizeCallback(handle, Window::HandleResize);
+		glfwSetFramebufferSizeCallback(handle, Window::HandleGLFWResize);
 	}
 	if (callbacks.keyCallback) glfwSetKeyCallback(handle, callbacks.keyCallback.value());
 	if (callbacks.charCallback) glfwSetCharCallback(handle, callbacks.charCallback.value());
@@ -125,7 +135,7 @@ ApplicationBase::ApplicationBase() {
 	if (!glfwInit()) {
 		throw std::runtime_error("Unable to initialize GLFW");
 	}
-	glfwSetErrorCallback(ApplicationBase_OnError);
+	glfwSetErrorCallback(PrintGLFWError);
 }
 
 ApplicationBase::~ApplicationBase() noexcept {
@@ -135,5 +145,3 @@ ApplicationBase::~ApplicationBase() noexcept {
 void PrintGLFWError(int32_t code, const char* msg) {
 	std::cerr << "(" << code << ") Error: " << msg << "\n";
 }
-
-} // namespace HOEngine
