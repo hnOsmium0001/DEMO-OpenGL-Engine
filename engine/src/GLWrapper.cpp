@@ -1,8 +1,6 @@
 #include <utility>
 #include <iostream>
-#include <GL/gl3w.h>
-
-#include "Shader.hpp"
+#include "GLWrapper.hpp"
 
 namespace HOEngine {
 

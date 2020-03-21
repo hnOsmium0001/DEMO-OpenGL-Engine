@@ -1,12 +1,61 @@
 #include <utility>
-#include <stdexcept>
 #include <iostream>
-
+#include <random>
+#include <limits>
 #include "Engine.hpp"
 
 namespace HOEngine {
 
-inline Window* Window::FromGLFW(GLFWwindow* handle) {
+UUID UUID::Chrono() {
+	// TODO
+	return UUID{0, 0};
+}
+
+UUID UUID::Random() {
+	auto rd = std::random_device{};
+	auto seed = std::mt19937_64{rd()};
+	auto gen = std::uniform_int_distribution<uint64_t>{};
+
+	auto lstBt = gen(seed);
+	auto mstBt = gen(seed);
+	// Byte #: 7766554433221100 
+	lstBt &= 0xff0fffffffffffff; // Clear version on 6th byte
+	lstBt |= 0x0040000000000000; // Set to version 4
+	mstBt &= 0xffffffffffffff3f; // Clear variant on (8 on lstBt + 0th) = 8th byte 
+	mstBt |= 0x0000000000000080; // Set to IETF variant
+	return UUID{lower, higher};
+}
+
+std::ostream& operator<<(std::ostream& strm, const Dimension& dim) {
+  strm << "(" << dim.width << ", " << dim.height << ")";
+  return strm;
+}
+
+std::optional<std::string> ReadFileAsStr(const std::string& path) {
+  std::ifstream in;
+  in.open(path);
+  if (!in.is_open()) return {};
+
+  std::stringstream buf;
+  buf << in.rdbuf();
+  return buf.str();
+}
+
+std::optional<std::vector<std::string>> ReadFileLines(const std::string &path) {
+	std::ifstream in;
+	in.open(path);
+  if (!in.is_open()) return {};
+
+	std::vector<std::string> lines;
+	while (true) {
+		std::string line;
+		std::getline(in, line);
+		lines.push_back(std::move(line));
+	}
+	return lines;
+}
+
+Window* Window::FromGLFW(GLFWwindow* handle) {
 	return static_cast<Window*>(glfwGetWindowUserPointer(handle));
 }
 
@@ -22,7 +71,7 @@ std::unique_ptr<Window> Window::New(const Dimension& dim, const std::string& tit
 
 	auto handle = glfwCreateWindow(dim.width, dim.height, title.c_str(), nullptr, nullptr);
 	if (handle == nullptr) return {};
-	auto window = std::unique_ptr<Window>(new Window(dim, handle));
+	auto window = std::make_unique<Window>(dim, handle);
 
 	glfwMakeContextCurrent(handle);
 
@@ -72,15 +121,6 @@ void Window::Resize(int32_t width, int32_t height) {
 	dim_.height = height;
 }
 
-void Window::HandleResize(GLFWwindow* handle, int32_t width, int32_t height) {
-	auto window = FromGLFW(handle);
-	if (window == nullptr) return;
-	window->Resize(width, height);
-}
-
-static void ApplicationBase_OnError(int32_t code, const char* msg) {
-	std::cerr << "(" << code << ") Error: " << msg << "\n";
-}
 ApplicationBase::ApplicationBase() {
 	if (!glfwInit()) {
 		throw std::runtime_error("Unable to initialize GLFW");
@@ -90,6 +130,10 @@ ApplicationBase::ApplicationBase() {
 
 ApplicationBase::~ApplicationBase() noexcept {
 	glfwTerminate();
+}
+
+void PrintGLFWError(int32_t code, const char* msg) {
+	std::cerr << "(" << code << ") Error: " << msg << "\n";
 }
 
 } // namespace HOEngine

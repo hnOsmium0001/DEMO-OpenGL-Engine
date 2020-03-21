@@ -2,8 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Engine.hpp"
-#include "Shader.hpp"
-#include "GLAttribute.hpp"
+#include "GLWrapper.hpp"
 
 void resizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
   HOEngine::Window::HandleResize(handle, width, height);
@@ -25,9 +24,9 @@ void cursorButtonCallback(GLFWwindow* handle, int32_t button, int32_t action, in
 void scrollCallback(GLFWwindow* handle, double x, double y) {
 }
 
-class Application : HOEngine::ApplicationBase {
+class Application : public HOEngine::ApplicationBase {
 public:
-  void Run() {
+  void Run() override {
     auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
       .resizeCallback = resizeCallback,
       .keyCallback = keyCallback,
@@ -58,8 +57,8 @@ public:
     glGenBuffers(1, &ibo);
     HOEngine::ScopeGuard iboRelease([&]() { glDeleteBuffers(1, &ibo); });
  
-    auto vshSource = HOEngine::ReadFileAsStr("example/resources/cube3d.vsh").value_or("");
-    auto fshSource = HOEngine::ReadFileAsStr("example/resources/cube3d.fsh").value_or("");
+    auto vshSource = HOEngine::ReadFileAsStr("example/resources/cube3d.vert").value_or("");
+    auto fshSource = HOEngine::ReadFileAsStr("example/resources/cube3d.frag").value_or("");
     auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
     if (!program) {
       std::cerr << "Unable to create shader program, aborting\n";
@@ -80,35 +79,35 @@ public:
     constexpr size_t POS = 0;
     constexpr size_t NORMAL = 1;
     constexpr size_t UV = 2;
-    verts[0].Attr<POS>() << 0.0f, 0.0f, 0.0f;
+    verts[0].Attr<POS>() << -1.0f, -1.0f, 1.0f;
     verts[0].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[0].Attr<UV>() << 0.0f, 0.0f;
 
-    verts[1].Attr<POS>() << 1.0f, 0.0f, 0.0f;
+    verts[1].Attr<POS>() << 1.0f, -1.0f, 1.0f;
     verts[1].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[1].Attr<UV>() << 0.0f, 0.0f;
 
-    verts[2].Attr<POS>() << 1.0f, 1.0f, 0.0f;
+    verts[2].Attr<POS>() << -1.0f, 1.0f, 1.0f;
     verts[2].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[2].Attr<UV>() << 0.0f, 0.0f;
 
-    verts[3].Attr<POS>() << 0.0f, 1.0f, 0.0f;
+    verts[3].Attr<POS>() << 1.0f, 1.0f, 1.0f;
     verts[3].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[3].Attr<UV>() << 0.0f, 0.0f;
     
-    verts[4].Attr<POS>() << 0.0f, 0.0f, 1.0f;
+    verts[4].Attr<POS>() << -1.0f, -1.0f, -1.0f;
     verts[4].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[4].Attr<UV>() << 0.0f, 0.0f;
 
-    verts[5].Attr<POS>() << 1.0f, 0.0f, 1.0f;
+    verts[5].Attr<POS>() << 1.0f, -1.0f, -1.0f;
     verts[5].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[5].Attr<UV>() << 0.0f, 0.0f;
 
-    verts[6].Attr<POS>() << 1.0f, 1.0f, 1.0f;
+    verts[6].Attr<POS>() << -1.0f, 1.0f, -1.0f;
     verts[6].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[6].Attr<UV>() << 0.0f, 0.0f;
 
-    verts[7].Attr<POS>() << 0.0f, 1.0f, 1.0f;
+    verts[7].Attr<POS>() << 1.0f, 1.0f, -1.0f;
     verts[7].Attr<NORMAL>() << 0.0f, 0.0f, 0.0f;
     verts[7].Attr<UV>() << 0.0f, 0.0f;
     glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
@@ -117,16 +116,12 @@ public:
     // Setup index buffer data
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     static const uint16_t indices[] = {
-      0, 1, 2,
-      0, 2, 3,
-      //TODO,
-      4, 5, 6,
-      4, 6, 7
+			0, 1, 2, 3, 7, 1, 5, 4, 7, 6, 2, 4, 0, 1
     };
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    float aspect = static_cast<float>(window->dim().width) / window->dim().height;
+    float aspect = static_cast<float>(window->width() / window->height());
     glm::vec3 eye(0, 0, 20);
     glm::vec3 viewDir(0, 0, -1);
 
@@ -145,7 +140,7 @@ public:
       glUniform4fv(glGetUniformLocation(*program, "mvp"), 1, &mvp[0][0]);
 
       glBindVertexArray(vao);
-      glDrawElements(GL_TRIANGLES, std::extent<decltype(*indices)>::value / 3, GL_UNSIGNED_SHORT, 0);
+      glDrawElements(GL_TRIANGLE_STRIP, std::extent<decltype(*indices)>::value / 3, GL_UNSIGNED_SHORT, 0);
 
       glfwSwapBuffers(*window);
       glfwPollEvents();

@@ -5,12 +5,14 @@
 #include <../res/bindings/imgui_impl_glfw.h>
 #include <../res/bindings/imgui_impl_opengl3.h>
 #include "Engine.hpp"
-#include "Shader.hpp"
-#include "GLAttribute.hpp"
+#include "GLWrapper.hpp"
 
 void resizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
-  HOEngine::Window::HandleResize(handle, width, height);
-  glViewport(0, 0, width, height);
+	auto window = HOEngine::Window::FromGLFW(handle);
+	if (window) {
+		window->Resize(width, height);
+		glViewport(0, 0, width, height);
+	}
 }
  
 void keyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
@@ -30,7 +32,7 @@ void scrollCallback(GLFWwindow* handle, double x, double y) {
  
 class Application : public HOEngine::ApplicationBase {
 public:
-  void Run() {
+  void Run() override {
     auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
       .resizeCallback = resizeCallback,
       .keyCallback = keyCallback,
@@ -58,8 +60,8 @@ public:
     glGenBuffers(1, &vbo);
     HOEngine::ScopeGuard vboRelease([&]() { glDeleteBuffers(1, &vbo); });
  
-    auto vshSource = HOEngine::ReadFileAsStr("example/resources/triangle.vsh").value_or("");
-    auto fshSource = HOEngine::ReadFileAsStr("example/resources/triangle.fsh").value_or("");
+    auto vshSource = HOEngine::ReadFileAsStr("example/resources/triangle.vert").value_or("");
+    auto fshSource = HOEngine::ReadFileAsStr("example/resources/triangle.frag").value_or("");
     auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
     if (!program) {
       std::cerr << "Unable to create shader program, aborting\n";
@@ -104,7 +106,7 @@ public:
     glGenTextures(1, &tex);
     HOEngine::ScopeGuard texRelease([&]() { glDeleteTextures(1, &tex); });
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window->dim().width, window->dim().height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window->width(), window->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  
