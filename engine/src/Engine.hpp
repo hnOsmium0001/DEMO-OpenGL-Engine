@@ -13,27 +13,30 @@
 #include <glm/glm.hpp>
 
 namespace HOEngine {
-	class UUID {
-	private:
-		uint64_t msb_;
-		uint64_t lsb_;
 
-	public:
-		/// Generate a type 4 UUID
-		static UUID Random(); 
-		UUID(uint64_t msb, uint64_t lsb) : msb_{msb}, lsb_{lsb} {}
+class UUID {
+private:
+	uint64_t msb_;
+	uint64_t lsb_;
 
-		const uint64_t& msb() const { return msb_; }
-		const uint64_t& lsb() const { return lsb_; }
-		auto operator<=>(const UUID&) const = default;
-	};
-}
-namespace std {
-	template<>
-	struct hash<HOEngine::UUID> {
-		size_t operator()(const HOEngine::UUID& uuid) const;
-	};
-}
+public:
+	/// Generate a type 4 UUID
+	static UUID Random(); 
+	UUID(uint64_t msb, uint64_t lsb) : msb_{msb}, lsb_{lsb} {}
+
+	const uint64_t& msb() const { return msb_; }
+	const uint64_t& lsb() const { return lsb_; }
+	auto operator<=>(const UUID&) const = default;
+
+	friend std::hash<UUID>;
+};
+
+} // namespace HOEngine
+
+template<>
+struct std::hash<HOEngine::UUID> {
+	size_t operator()(const HOEngine::UUID& uuid) const;
+};
 
 namespace HOEngine {
 
@@ -158,20 +161,6 @@ public:
 };
 
 void PrintGLFWError(int32_t code, const char* msg);
-
-// TODO
-class Camera {
-private:
-	glm::vec3 look;
-	float fov = 90.0f;
-	float nearPane = 0.1f;
-	float farPane = 1000.0f;
-
-public:
-	void LookAt(glm::vec3 look);
-	void SetFOV(float fov);
-	void SetPanes(float nearPane, float farPane);
-};
 
 } // namespace HOEngine
 

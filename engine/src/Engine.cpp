@@ -6,7 +6,7 @@
 #include <limits>
 #include "Engine.hpp"
 
-using namespace HOEngine;
+namespace HOEngine {
 
 UUID UUID::Random() {
 	auto rd = std::random_device{};
@@ -23,11 +23,15 @@ UUID UUID::Random() {
 	return UUID{msbits, lsbits};
 }
 
-size_t std::hash<UUID>::operator()(const UUID& uuid) const {
-	auto h1 = std::hash<uint64_t>()(uuid.msb());
-	auto h2 = std::hash<uint64_t>()(uuid.lsb());
+} // namespace HOEngine
+
+size_t std::hash<HOEngine::UUID>::operator()(const HOEngine::UUID& uuid) const {
+	auto h1 = std::hash<uint64_t>()(uuid.msb_);
+	auto h2 = std::hash<uint64_t>()(uuid.lsb_);
 	return h1 ^ (h2 << 1);
 }
+
+namespace HOEngine {
 
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim) {
   strm << "(" << dim.width << ", " << dim.height << ")";
@@ -52,7 +56,7 @@ std::optional<std::vector<std::string>> ReadFileLines(const std::string &path) {
 	std::vector<std::string> lines;
 	while (true) {
 		std::string line;
-		std::getline(in, line);
+		if (!std::getline(in, line)) break;
 		lines.push_back(std::move(line));
 	}
 	return lines;
@@ -145,3 +149,5 @@ ApplicationBase::~ApplicationBase() noexcept {
 void PrintGLFWError(int32_t code, const char* msg) {
 	std::cerr << "(" << code << ") Error: " << msg << "\n";
 }
+
+} // namespace HOEngine

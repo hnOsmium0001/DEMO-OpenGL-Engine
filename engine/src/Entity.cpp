@@ -1,7 +1,7 @@
 #include <utility>
 #include "Entity.hpp"
 
-using namespace HOEngine;
+namespace HOEngine {
 
 namespace {
 
@@ -18,6 +18,19 @@ namespace {
 		}
 	}
 
+}
+
+Entity::Entity(const Entity& that) {
+	for (const auto& [rid, compPtr] : that.components) {
+		this->components.insert({rid, compPtr->Clone()});
+	}
+}
+Entity& Entity::operator=(const Entity& that) {
+	this->components.clear();
+	for (const auto& [rid, compPtr] : that.components) {
+		this->components.insert({rid, compPtr->Clone()});
+	}
+	return *this;
 }
 
 Component* Entity::GetComponent(const UUID& typeID) {
@@ -45,7 +58,7 @@ void Entity::RemoveAllComponents() {
 Entity* EntitiesStorage::Get(EntityID id) {
 	if (id.idx >= entities.size()) return nullptr;
 
-	auto candidate = entities[id.idx];
+	auto& candidate = entities[id.idx];
 	if (candidate.gen == id.gen) {
 		return &candidate.value;
 	} else {
@@ -78,3 +91,5 @@ std::optional<uint64_t> EntitiesStorage::NextAvailableSpot() {
 	tombstones.pop();
 	return result;
 }
+
+} // namespace HOEngine

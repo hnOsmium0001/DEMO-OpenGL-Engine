@@ -2,7 +2,7 @@
 #include <iostream>
 #include "GLWrapper.hpp"
 
-using namespace HOEngine;
+namespace HOEngine {
 
 Shader::Shader(GLuint handle) noexcept
   : handle_{ handle } {
@@ -115,3 +115,5 @@ ShaderProgram::~ShaderProgram() noexcept {
     glDeleteProgram(handle_);
   }
 }
+
+} // namespace HOEngine
