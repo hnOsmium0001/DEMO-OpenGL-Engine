@@ -7,7 +7,7 @@ out vec4 pos;
 out vec3 color;
 
 void main() {
-  pos = vec4(posIn, 1.0);
-  color = colorIn;
-  gl_Position = pos;
+	pos = vec4(posIn, 1.0);
+	color = colorIn;
+	gl_Position = pos;
 }

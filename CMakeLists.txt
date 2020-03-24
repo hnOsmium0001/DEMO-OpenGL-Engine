@@ -11,12 +11,12 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 add_library(opengl_engine
-  engine/src/Engine.hpp
-  engine/src/Engine.cpp
+	engine/src/Engine.hpp
+	engine/src/Engine.cpp
 	engine/src/Entity.hpp
 	engine/src/Entity.cpp
-  engine/src/GLWrapper.hpp
-  engine/src/GLWrapper.cpp
+	engine/src/GLWrapper.hpp
+	engine/src/GLWrapper.cpp
 )
 target_link_libraries(opengl_engine ${CONAN_LIBS})
 
@@ -24,17 +24,17 @@ target_link_libraries(opengl_engine ${CONAN_LIBS})
 include_directories(engine/src)
 
 add_executable(opengl_example
-  example/src/Graphics2DMain.cpp
+	example/src/Graphics2DMain.cpp
 )
 target_link_libraries(opengl_example
-  # Includes link targets in `opengl_engine`
-  opengl_engine
+	# Includes link targets in `opengl_engine`
+	opengl_engine
 )
 
 add_executable(opengl_3d_example
-  example/src/Graphics3DMain.cpp
+	example/src/Graphics3DMain.cpp
 )
 target_link_libraries(opengl_3d_example
-  # Includes link targets in `opengl_engine`
-  opengl_engine
+	# Includes link targets in `opengl_engine`
+	opengl_engine
 )

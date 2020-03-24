@@ -75,41 +75,41 @@ using NthTypeOf = typename std::tuple_element<n, std::tuple<Ts...>>::type;
 
 template <typename T>
 struct ToGL {
-  static constexpr GLenum value = 0;
-  using Type = void;
+	static constexpr GLenum value = 0;
+	using Type = void;
 };
 
 template<> struct ToGL<float> {
-  static constexpr GLenum value = GL_FLOAT;
-  using Type = GLfloat;
+	static constexpr GLenum value = GL_FLOAT;
+	using Type = GLfloat;
 };
 template<> struct ToGL<double> {
-  static constexpr GLenum value = GL_DOUBLE;
-  using Type = GLdouble;
+	static constexpr GLenum value = GL_DOUBLE;
+	using Type = GLdouble;
 };
 template<> struct ToGL<int32_t> {
-  static constexpr GLenum value = GL_INT;
-  using Type = GLint;
+	static constexpr GLenum value = GL_INT;
+	using Type = GLint;
 };
 template<> struct ToGL<int16_t> {
-  static constexpr GLenum value = GL_SHORT;
-  using Type = GLshort;
+	static constexpr GLenum value = GL_SHORT;
+	using Type = GLshort;
 };
 template<> struct ToGL<int8_t> {
-  static constexpr GLenum value = GL_BYTE;
-  using Type = GLbyte;
+	static constexpr GLenum value = GL_BYTE;
+	using Type = GLbyte;
 };
 template<> struct ToGL<uint32_t> {
-  static constexpr GLenum value = GL_UNSIGNED_INT;
-  using Type = GLuint;
+	static constexpr GLenum value = GL_UNSIGNED_INT;
+	using Type = GLuint;
 };
 template<> struct ToGL<uint16_t> {
-  static constexpr GLenum value = GL_UNSIGNED_SHORT;
-  using Type = GLushort;
+	static constexpr GLenum value = GL_UNSIGNED_SHORT;
+	using Type = GLushort;
 };
 template<> struct ToGL<uint8_t> {
-  static constexpr GLenum value = GL_UNSIGNED_BYTE;
-  using Type = GLubyte;
+	static constexpr GLenum value = GL_UNSIGNED_BYTE;
+	using Type = GLubyte;
 };
 
 struct WindowCallbacks {
@@ -127,18 +127,18 @@ private:
 	GLFWwindow* handle_;
 
 public:
-  /// Get the HOEngine::Window coutnerpart to the given GLFWwindow* if present,
-  /// otherwise returns `nullptr`.
+	/// Get the HOEngine::Window coutnerpart to the given GLFWwindow* if present,
+	/// otherwise returns `nullptr`.
 	static Window* FromGLFW(GLFWwindow* handle);
-  /// Automatically handle fetching HOEngine::Window and internal resizing logic.
-  /// Used by default callbacks when user-defined callbacks are not provided,
-  /// not recommanded for direct usages.
-  static void HandleGLFWResize(GLFWwindow* handle, int32_t width, int32_t height);
+	/// Automatically handle fetching HOEngine::Window and internal resizing logic.
+	/// Used by default callbacks when user-defined callbacks are not provided,
+	/// not recommanded for direct usages.
+	static void HandleGLFWResize(GLFWwindow* handle, int32_t width, int32_t height);
 	static std::unique_ptr<Window> New(const Dimension& dim, const std::string& title, const WindowCallbacks& callbacks);
 
-  /// Constructor for creating from an already-created GLFWwindow. Main purpose is
-  /// for internal usage, not recomandded for direct use.
-  Window(Dimension, GLFWwindow*) noexcept;
+	/// Constructor for creating from an already-created GLFWwindow. Main purpose is
+	/// for internal usage, not recomandded for direct use.
+	Window(Dimension, GLFWwindow*) noexcept;
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	Window(Window&& source) noexcept;
@@ -166,5 +166,5 @@ void PrintGLFWError(int32_t code, const char* msg);
 
 
 constexpr float operator"" _deg(long double degrees) {
-  return static_cast<float>(degrees * 3.14159265358979323846264l / 180);
+	return static_cast<float>(degrees * 3.14159265358979323846264l / 180);
 }

@@ -92,4 +92,35 @@ std::optional<uint64_t> EntitiesStorage::NextAvailableSpot() {
 	return result;
 }
 
+glm::mat4 TransformComponent::TransformMat() const {
+	glm::mat4 result;
+	// Position vector -> 4th column
+	result[3] = position_;
+	return result;
+};
+glm::mat4 TransformComponent::RotationMat() const {
+	glm::mat4 result;
+	// TODO
+	return result;
+}
+glm::mat4 TransformComponent::ScaleMat() const {
+	glm::mat4 result;
+	result[0][0] = scale_[0];
+	result[1][1] = scale_[1];
+	result[2][2] = scale_[2];
+	result[3][3] = scale_[3];
+	return result;
+}
+glm::mat4 TransformComponent::TransformMat() const {
+	return ScaleMat() * RotationMat() * TranslationMat();
+}
+
+void MeshRendererComponent::Populate() {
+	glBindVertexArray(vao.handle());
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.handle());
+	this->SetupAttributes();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo.handle());
+	glBindVertexArray(0);
+}
+
 } // namespace HOEngine

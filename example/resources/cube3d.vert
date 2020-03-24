@@ -10,7 +10,7 @@ out vec3 normal;
 out vec2 uv;
 
 void main() {
-  gl_Position = mvp * vec4(posIn, 1.0);
-  normal = normalIn;
-  uv = uvIn;
+	gl_Position = mvp * vec4(posIn, 1.0);
+	normal = normalIn;
+	uv = uvIn;
 }

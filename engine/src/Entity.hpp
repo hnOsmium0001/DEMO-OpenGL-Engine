@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "Engine.hpp"
+#include "GLWrapper.hpp"
 
 namespace HOEngine {
 
@@ -30,8 +31,7 @@ class Entity {
 private:
 	std::unordered_map<uint32_t, std::unique_ptr<Component>> components;
 
-public:
-	Entity(const Entity&);
+public: Entity(const Entity&);
 	Entity& operator=(const Entity&);
 	Entity(Entity&&) = default;
 	Entity& operator=(Entity&&) = default;
@@ -84,13 +84,10 @@ private:
 
 public:
 	std::unique_ptr<TransformComponent> Clone() const { return std::make_unique<TransformComponent>(*this); }
-	// TODO
 	glm::mat4 TranslationMat() const;
-	glm::vec3 EulerAngles() const;
 	glm::mat4 RotationMat() const;
 	glm::mat4 ScaleMat() const;
 	glm::mat4 TransformMat() const;
-
 
 	glm::vec3& position() { return position_; }
 	const glm::vec3& position() const { return position_; }
@@ -108,32 +105,55 @@ public:
 };
 const UUID TransformComponent::uuid{0xa6b655c3a9c8d0d4, 0xa6b655c3a9c8d0d4};
 
-template <typename Index = GLushort>
 class MeshComponent : public Component {
 private:
 	std::vector<glm::vec3> vertices_;
-	std::vector<Index> indices_;
-	GLuint mode_ = GL_TRIANGLES;
+	std::vector<GLuint> indices_;
 
 public:
-	std::unique_ptr<MeshComponent<Index>> Clone() const { return std::make_unique<MeshComponent<Index>>(*this); }
+	std::unique_ptr<MeshComponent> Clone() const { return std::make_unique<MeshComponent>(*this); }
 
 	std::vector<glm::vec3>& vertices() { return vertices_; }
 	const std::vector<glm::vec3>& vertices() const { return vertices_; }
-	std::vector<Index>& indices() { return indices_; }
-	const std::vector<Index>& indices() const { return indices_; }
-	GLuint mode() { return mode_; }
-	void mode(GLuint newMode) { this->mode_ = newMode; }
+	std::vector<GLuint>& indices() { return indices_; }
+	const std::vector<GLuint>& indices() const { return indices_; }
 
 private:
-	virtual MeshComponent<Index>* CloneImpl() const override { return new MeshComponent<Index>(*this); }
+	virtual MeshComponent* CloneImpl() const override { return new MeshComponent(*this); }
 
 public:
 	static const UUID uuid;
 	const UUID& GetTypeID() const override { return uuid; }
 };
-template <typename Index>
-const UUID MeshComponent<Index>::uuid{0xf4a188a7625c4116, 0xb4d9d872756282c8};
+const UUID MeshComponent::uuid{0xf4a188a7625c4116, 0xb4d9d872756282c8};
+
+class MeshRendererComponent : public Component {
+private:
+	StateObject vao;
+	BufferObject vbo, ibo; 
+
+public:
+	void Populate();
+
+private:
+	/// Setup vertex attribute pointers in which ever way preferred. GL_ARRAY_BUFFER will
+	/// be bound before and unbound after the function call.
+	virtual void SetupAttributes() = 0;
+};
+
+// TODO
+class RigidBodyComponent : public Component {
+public:
+	std::unique_ptr<RigidBodyComponent> Clone() const { return std::make_unique<MeshComponent>(*this); }
+
+private:
+	virtual RigidBodyComponent* CloneImpl() const override { return new RigidBodyComponent(*this); }
+
+public:
+	static const UUID uuid;
+	const UUID& GetTypeID() const override { return uuid; }
+};
+const UUID RigidBodyComponent::uuid{0x0559640e4d14a16, 0xa9222e414f78105d};
 
 class CameraComponent : public Component {
 private:

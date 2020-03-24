@@ -34,24 +34,24 @@ size_t std::hash<HOEngine::UUID>::operator()(const HOEngine::UUID& uuid) const {
 namespace HOEngine {
 
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim) {
-  strm << "(" << dim.width << ", " << dim.height << ")";
-  return strm;
+	strm << "(" << dim.width << ", " << dim.height << ")";
+	return strm;
 }
 
 std::optional<std::string> ReadFileAsStr(const std::string& path) {
-  std::ifstream in;
-  in.open(path);
-  if (!in.is_open()) return {};
+	std::ifstream in;
+	in.open(path);
+	if (!in.is_open()) return {};
 
-  std::stringstream buf;
-  buf << in.rdbuf();
-  return buf.str();
+	std::stringstream buf;
+	buf << in.rdbuf();
+	return buf.str();
 }
 
 std::optional<std::vector<std::string>> ReadFileLines(const std::string &path) {
 	std::ifstream in;
 	in.open(path);
-  if (!in.is_open()) return {};
+	if (!in.is_open()) return {};
 
 	std::vector<std::string> lines;
 	while (true) {
