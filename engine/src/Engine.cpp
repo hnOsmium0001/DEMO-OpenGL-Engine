@@ -1,3 +1,4 @@
+#include <optional>
 #include <utility>
 #include <iostream>
 #include <fstream>
@@ -6,7 +7,7 @@
 #include <limits>
 #include "Engine.hpp"
 
-namespace HOEngine {
+using namespace HOEngine;
 
 UUID UUID::Random() {
 	auto rd = std::random_device{};
@@ -23,7 +24,9 @@ UUID UUID::Random() {
 	return UUID{msbits, lsbits};
 }
 
-} // namespace HOEngine
+bool UUID::operator==(const UUID& that) const {
+	return std::tie(msb_, lsb_) == std::tie(that.msb_, that.lsb_);
+}
 
 size_t std::hash<HOEngine::UUID>::operator()(const HOEngine::UUID& uuid) const {
 	auto h1 = std::hash<uint64_t>()(uuid.msb_);
@@ -31,14 +34,12 @@ size_t std::hash<HOEngine::UUID>::operator()(const HOEngine::UUID& uuid) const {
 	return h1 ^ (h2 << 1);
 }
 
-namespace HOEngine {
-
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim) {
 	strm << "(" << dim.width << ", " << dim.height << ")";
 	return strm;
 }
 
-std::optional<std::string> ReadFileAsStr(const std::string& path) {
+std::optional<std::string> Files::ReadFileAsStr(const std::string& path) {
 	std::ifstream in;
 	in.open(path);
 	if (!in.is_open()) return {};
@@ -48,7 +49,7 @@ std::optional<std::string> ReadFileAsStr(const std::string& path) {
 	return buf.str();
 }
 
-std::optional<std::vector<std::string>> ReadFileLines(const std::string &path) {
+std::optional<std::vector<std::string>> Files::ReadFileLines(const std::string &path) {
 	std::ifstream in;
 	in.open(path);
 	if (!in.is_open()) return {};
@@ -146,8 +147,6 @@ ApplicationBase::~ApplicationBase() noexcept {
 	glfwTerminate();
 }
 
-void PrintGLFWError(int32_t code, const char* msg) {
+void ApplicationBase::PrintGLFWError(int32_t code, const char* msg) {
 	std::cerr << "(" << code << ") Error: " << msg << "\n";
 }
-
-} // namespace HOEngine

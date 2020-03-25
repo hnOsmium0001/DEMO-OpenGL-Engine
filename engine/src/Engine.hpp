@@ -5,7 +5,6 @@
 #include <functional>
 #include <memory>
 #include <optional>
-#include <compare>
 #include <stdexcept>
 #include <iostream>
 #include <GL/gl3w.h>
@@ -26,7 +25,7 @@ public:
 
 	const uint64_t& msb() const { return msb_; }
 	const uint64_t& lsb() const { return lsb_; }
-	auto operator<=>(const UUID&) const = default;
+	bool operator==(const UUID&) const;
 
 	friend std::hash<UUID>;
 };
@@ -40,8 +39,7 @@ struct std::hash<HOEngine::UUID> {
 
 namespace HOEngine {
 
-class Dimension {
-public:
+struct Dimension {
 	int32_t width;
 	int32_t height;
 };
@@ -67,8 +65,10 @@ public:
 	}
 };
 
-std::optional<std::string> ReadFileAsStr(const std::string& path);
-std::optional<std::vector<std::string>> ReadFileLines(const std::string& path);
+namespace Files {
+	std::optional<std::string> ReadFileAsStr(const std::string& path);
+	std::optional<std::vector<std::string>> ReadFileLines(const std::string& path);
+}; // namespace Files
 
 template<int32_t n, typename... Ts>
 using NthTypeOf = typename std::tuple_element<n, std::tuple<Ts...>>::type;
@@ -78,7 +78,6 @@ struct ToGL {
 	static constexpr GLenum value = 0;
 	using Type = void;
 };
-
 template<> struct ToGL<float> {
 	static constexpr GLenum value = GL_FLOAT;
 	using Type = GLfloat;
@@ -158,12 +157,47 @@ class ApplicationBase {
 public:
 	ApplicationBase();
 	~ApplicationBase() noexcept;
-};
 
-void PrintGLFWError(int32_t code, const char* msg);
+	static void PrintGLFWError(int32_t code, const char* msg);
+};
 
 } // namespace HOEngine
 
+template <typename T, typename Func>
+auto fmap(const std::optional<T>& opt, Func&& func) -> std::optional<decltype(func(*opt))> {
+	return opt ? func(*opt) : std::nullopt;
+}
+template <typename T, typename Func>
+auto operator|(const std::optional<T>& opt, Func&& func) -> std::optional<decltype(func(*opt))> {
+	return fmap(opt, std::forward<Func>(func));
+}
+
+template <typename T, typename U, typename Func>
+auto fmap2(
+		const std::optional<T>& optT,
+		const std::optional<U>& optU,
+		Func&& func
+) -> std::optional<decltype(func(*optT, *optU))> {
+	return (optT && optU) ? func(*optT, *optU) : std::nullopt;
+}
+
+template <typename T, typename Func>
+auto bind(const std::optional<T>& opt, Func&& func) -> decltype(func(*opt)) {
+	return opt ? func(*opt) : std::nullopt;
+}
+template <typename T, typename Func>
+auto operator>>(const std::optional<T>& opt, Func&& func) -> decltype(func(*opt)) {
+	return bind(opt, std::forward<Func>(func));
+}
+
+template <typename T, typename U, typename Func>
+auto bind2(
+		const std::optional<T>& optT,
+		const std::optional<U>& optU,
+		Func&& func
+) -> decltype(func(*optT, *optU)) {
+	return (optT && optU) ? func(*optT, *optU) : std::nullopt;
+}
 
 constexpr float operator"" _deg(long double degrees) {
 	return static_cast<float>(degrees * 3.14159265358979323846264l / 180);

@@ -2,7 +2,7 @@
 #include <iostream>
 #include "GLWrapper.hpp"
 
-namespace HOEngine {
+using namespace HOEngine;
 
 Shader::Shader(GLuint handle) noexcept
 	: handle_{ handle } {
@@ -66,15 +66,13 @@ ShaderProgram::ShaderProgram(GLuint handle) noexcept
 }
 
 std::optional<ShaderProgram> ShaderProgram::New(const std::string& vshSource, const std::string& fshSource) {
-	std::optional<Shader> vsh = Shader::New(GL_VERTEX_SHADER, vshSource);
-	if (!vsh) return {};
-	std::optional<Shader> fsh = Shader::New(GL_FRAGMENT_SHADER, fshSource);
-	if (!fsh) return {};
-	return ShaderProgram::New(vsh.value(), fsh.value());
+	auto vsh = Shader::New(GL_VERTEX_SHADER, vshSource);
+	auto fsh = Shader::New(GL_FRAGMENT_SHADER, fshSource);
+	return bind2(vsh, fsh, [](auto& vsh, auto& fsh) { return ShaderProgram::New(vsh, fsh); });
 }
 
 std::optional<ShaderProgram> ShaderProgram::New(const Shader& vsh, const Shader& fsh) {
-	GLuint handle = glCreateProgram();
+	auto handle = glCreateProgram();
 	if (handle == 0) return {};
 	// In case something fails destructor will auto-free the program object for us
 	ShaderProgram program(handle);
@@ -115,5 +113,3 @@ ShaderProgram::~ShaderProgram() noexcept {
 		glDeleteProgram(handle_);
 	}
 }
-
-} // namespace HOEngine

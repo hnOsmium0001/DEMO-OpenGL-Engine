@@ -130,7 +130,8 @@ const UUID MeshComponent::uuid{0xf4a188a7625c4116, 0xb4d9d872756282c8};
 class MeshRendererComponent : public Component {
 private:
 	StateObject vao;
-	BufferObject vbo, ibo; 
+	BufferObject vbo;
+	BufferObject ibo; 
 
 public:
 	void Populate();
@@ -140,29 +141,34 @@ private:
 	/// be bound before and unbound after the function call.
 	virtual void SetupAttributes() = 0;
 };
+// Pure virtual class, no need for UUID
 
-// TODO
-class RigidBodyComponent : public Component {
+class LightComponent : public Component {
+private:
+	float strength;
+
 public:
-	std::unique_ptr<RigidBodyComponent> Clone() const { return std::make_unique<MeshComponent>(*this); }
+	std::unique_ptr<LightComponent> Clone() const { return std::make_unique<LightComponent>(*this); }
 
 private:
-	virtual RigidBodyComponent* CloneImpl() const override { return new RigidBodyComponent(*this); }
+	virtual LightComponent* CloneImpl() const override { return new LightComponent(*this); }
 
 public:
 	static const UUID uuid;
 	const UUID& GetTypeID() const override { return uuid; }
 };
-const UUID RigidBodyComponent::uuid{0x0559640e4d14a16, 0xa9222e414f78105d};
+const UUID LightComponent::uuid{0x0559640e4d14a16, 0xa9222e414f78105d};
 
 class CameraComponent : public Component {
 private:
-	float fov_;
-	float nearPane_;
-	float farPane_;
+	float fov_ = 90.0_deg;
+	float nearPane_ = 0.1f;
+	float farPane_ = 1000.0f;
 
 public:
 	std::unique_ptr<CameraComponent> Clone() const { return std::make_unique<CameraComponent>(*this); }
+	glm::mat4 ViewMat() const;
+	glm::mat4 PerspectiveMat() const;
 
 	float fov() { return fov_; }
 	void fov(float newFov) { this->fov_ = newFov; }

@@ -1,7 +1,7 @@
 #include <utility>
 #include "Entity.hpp"
 
-namespace HOEngine {
+using namespace HOEngine;
 
 namespace {
 
@@ -92,10 +92,10 @@ std::optional<uint64_t> EntitiesStorage::NextAvailableSpot() {
 	return result;
 }
 
-glm::mat4 TransformComponent::TransformMat() const {
+glm::mat4 TransformComponent::TranslationMat() const {
 	glm::mat4 result;
 	// Position vector -> 4th column
-	result[3] = position_;
+	result[3] = glm::vec4(position_, 1);
 	return result;
 };
 glm::mat4 TransformComponent::RotationMat() const {
@@ -123,4 +123,10 @@ void MeshRendererComponent::Populate() {
 	glBindVertexArray(0);
 }
 
-} // namespace HOEngine
+glm::mat4 CameraComponent::ViewMat() const  {
+	// TODO
+	return glm::mat4();
+}
+glm::mat4 CameraComponent::PerspectiveMat() const {
+	return glm::perspective(fov_, 0.0f, nearPane_, farPane_);
+}

@@ -48,25 +48,17 @@ public:
 			return;
 		}
 
-		GLuint vao;
-		glGenVertexArrays(1, &vao);
-		HOEngine::ScopeGuard vaoRelease([&]() { glDeleteVertexArrays(1, &vao); });
+		HOEngine::StateObject vao;
+		HOEngine::BufferObject vbo, ibo;
  
-		GLuint vbo;
-		glGenBuffers(1, &vbo);
-		HOEngine::ScopeGuard vboRelease([&]() { glDeleteBuffers(1, &vbo); });
-
-		GLuint ibo;
-		glGenBuffers(1, &ibo);
-		HOEngine::ScopeGuard iboRelease([&]() { glDeleteBuffers(1, &ibo); });
- 
-		auto vshSource = HOEngine::ReadFileAsStr("example/resources/cube3d.vert").value_or("");
-		auto fshSource = HOEngine::ReadFileAsStr("example/resources/cube3d.frag").value_or("");
-		auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
-		if (!program) {
+		auto vshSource = HOEngine::Files::ReadFileAsStr("example/resources/cube3d.vert");
+		auto fshSource = HOEngine::Files::ReadFileAsStr("example/resources/cube3d.frag");
+		auto programOpt = bind2(vshSource, fshSource, [](auto& vsh, auto& fsh) { return HOEngine::ShaderProgram::New(vsh, fsh); });
+		if (!programOpt) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;
 		}
+		GLuint program = programOpt.value();
 
 		glBindVertexArray(vao);
 		// Bind attribute pointers for VAO
@@ -139,8 +131,8 @@ public:
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearColor(175.0f / 255.0f, 175.0f / 255.0f, 175.0f / 255.0f, 1.0f);
 
-			glUseProgram(*program);
-			glUniform4fv(glGetUniformLocation(*program, "mvp"), 1, &mvp[0][0]);
+			glUseProgram(program);
+			glUniform4fv(glGetUniformLocation(program, "mvp"), 1, &mvp[0][0]);
 
 			glBindVertexArray(vao);
 			glDrawElements(GL_TRIANGLE_STRIP, std::extent<decltype(*indices)>::value / 3, GL_UNSIGNED_SHORT, 0);

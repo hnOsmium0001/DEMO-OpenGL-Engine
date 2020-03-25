@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <string>
 #include <optional>
 #include <array>
@@ -117,17 +118,11 @@ public:
 	}
 };
 
-enum class BufferType {
-	STATIC,
-	DYNAMIC,
-	STREAM,
-};
-
 using GLGenBuf = void(*)(GLsizei, GLuint*);
 using GLDelBuf = void(*)(GLsizei, GLuint*);
 
 // template <GLuint count, GLGenBuf gen, GLDelBuf del>
-template <GLuint count, GLGenBuf gen, GLDelBuf del>
+template <size_t count, GLGenBuf gen, GLDelBuf del>
 class GLObjects {
 private:
 	static_assert(count > 0, "GLObjects must contain at least one object. 0 is provided.");
@@ -139,26 +134,30 @@ public:
 	~GLObjects() noexcept { del(count, handles.data()); }
 	GLuint handle(size_t index) const { return handles[index]; }
 	GLuint handle() const { return handles[0]; }
+	operator GLuint() const { return handles[0]; }
 };
 
 template <GLGenBuf gen, GLDelBuf del>
 using GLObject = GLObjects<1, gen, del>;
 
-constexpr auto genStateObjects = [](GLsizei size, GLuint* ptr) { glGenVertexArrays(size, ptr); };
-constexpr auto delStateObjects = [](GLsizei size, GLuint* ptr) { glDeleteVertexArrays(size, ptr); };
+// OpenGL objects are linked at runtime (thus their funcion pointers are not constexpr)
+// we must wrap them in a determined compile time function for templates to work
+inline void GenStateObjects_Internal_(GLsizei size, GLuint* ptr) { glGenVertexArrays(size, ptr); }
+inline void DelStateObjects_Internal_(GLsizei size, GLuint* ptr) { glDeleteVertexArrays(size, ptr); }
+inline void GenBufferObjects_Internal_(GLsizei size, GLuint* ptr) { glGenBuffers(size, ptr); }
+inline void DelBufferObjects_Internal_(GLsizei size, GLuint* ptr) { glDeleteBuffers(size, ptr); }
+
 /// Aka "vertex array object" which stores buffer binding and attribute
 /// pointer states.
-template <GLuint count>
-using StateObjects = GLObjects<count, genStateObjects, delStateObjects>;
+template <size_t count>
+using StateObjects = GLObjects<count, GenStateObjects_Internal_, DelStateObjects_Internal_>;
 /// A `StateObjects` alias with `count` defaulted to 1
 using StateObject = StateObjects<1>;
 
-constexpr auto genBufferObjects = [](GLsizei size, GLuint* ptr) { glGenBuffers(size, ptr); };
-constexpr auto delBufferObjects = [](GLsizei size, GLuint* ptr) { glDeleteBuffers(size, ptr); };
 /// Very primitive wrapper around a "vertex buffer object". This does not
 /// manage OpenGL buffer usages, nor does it handle binding.
-template <GLuint count>
-using BufferObjects = GLObjects<count, genBufferObjects, delBufferObjects>;
+template <size_t count>
+using BufferObjects = GLObjects<count, GenBufferObjects_Internal_, DelBufferObjects_Internal_>;
 /// A `BufferObjects` alias with `count` defaulted to 1
 using BufferObject = BufferObjects<1>;
 
@@ -177,6 +176,7 @@ public:
 	~Shader() noexcept;
 	
 	operator GLuint() const { return handle_; }
+	GLuint handle() const { return handle_; }
 };
 
 class ShaderProgram {
@@ -195,6 +195,7 @@ public:
 	~ShaderProgram() noexcept;
 
 	operator GLuint() const { return handle_; }
+	GLuint handle() const { return handle_; }
 };
 
 } // namespace HOEngine

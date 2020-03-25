@@ -60,8 +60,8 @@ public:
 		glGenBuffers(1, &vbo);
 		HOEngine::ScopeGuard vboRelease([&]() { glDeleteBuffers(1, &vbo); });
  
-		auto vshSource = HOEngine::ReadFileAsStr("example/resources/triangle.vert").value_or("");
-		auto fshSource = HOEngine::ReadFileAsStr("example/resources/triangle.frag").value_or("");
+		auto vshSource = HOEngine::Files::ReadFileAsStr("example/resources/triangle.vert").value_or("");
+		auto fshSource = HOEngine::Files::ReadFileAsStr("example/resources/triangle.frag").value_or("");
 		auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
 		if (!program) {
 			std::cerr << "Unable to create shader program, aborting\n";
