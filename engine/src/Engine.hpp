@@ -43,8 +43,9 @@ struct Dimension {
 	int32_t width;
 	int32_t height;
 };
-
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim);
+std::string operator+(const char* prev, const Dimension& dim);
+std::string operator+(const std::string& prev, const Dimension& dim);
 
 template <typename F>
 class ScopeGuard {
@@ -65,10 +66,10 @@ public:
 	}
 };
 
-namespace Files {
-	std::optional<std::string> ReadFileAsStr(const std::string& path);
-	std::optional<std::vector<std::string>> ReadFileLines(const std::string& path);
-}; // namespace Files
+inline void HashCombine(size_t& seed, size_t hash);
+
+std::optional<std::string> ReadFileAsStr(const std::string& path);
+std::optional<std::vector<std::string>> ReadFileLines(const std::string& path);
 
 template<int32_t n, typename... Ts>
 using NthTypeOf = typename std::tuple_element<n, std::tuple<Ts...>>::type;
@@ -161,43 +162,21 @@ public:
 	static void PrintGLFWError(int32_t code, const char* msg);
 };
 
+class SimpleVertex {
+public:
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec2 uv;
+
+	bool operator==(const SimpleVertex& that) const;
+};
+
 } // namespace HOEngine
 
-template <typename T, typename Func>
-auto fmap(const std::optional<T>& opt, Func&& func) -> std::optional<decltype(func(*opt))> {
-	return opt ? func(*opt) : std::nullopt;
-}
-template <typename T, typename Func>
-auto operator|(const std::optional<T>& opt, Func&& func) -> std::optional<decltype(func(*opt))> {
-	return fmap(opt, std::forward<Func>(func));
-}
-
-template <typename T, typename U, typename Func>
-auto fmap2(
-		const std::optional<T>& optT,
-		const std::optional<U>& optU,
-		Func&& func
-) -> std::optional<decltype(func(*optT, *optU))> {
-	return (optT && optU) ? func(*optT, *optU) : std::nullopt;
-}
-
-template <typename T, typename Func>
-auto bind(const std::optional<T>& opt, Func&& func) -> decltype(func(*opt)) {
-	return opt ? func(*opt) : std::nullopt;
-}
-template <typename T, typename Func>
-auto operator>>(const std::optional<T>& opt, Func&& func) -> decltype(func(*opt)) {
-	return bind(opt, std::forward<Func>(func));
-}
-
-template <typename T, typename U, typename Func>
-auto bind2(
-		const std::optional<T>& optT,
-		const std::optional<U>& optU,
-		Func&& func
-) -> decltype(func(*optT, *optU)) {
-	return (optT && optU) ? func(*optT, *optU) : std::nullopt;
-}
+template<>
+struct std::hash<HOEngine::SimpleVertex> {
+	size_t operator()(const HOEngine::SimpleVertex& vert) const;
+};
 
 constexpr float operator"" _deg(long double degrees) {
 	return static_cast<float>(degrees * 3.14159265358979323846264l / 180);

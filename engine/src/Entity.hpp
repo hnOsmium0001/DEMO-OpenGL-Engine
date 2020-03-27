@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 #include <optional>
 #include <vector>
@@ -107,14 +109,14 @@ const UUID TransformComponent::uuid{0xa6b655c3a9c8d0d4, 0xa6b655c3a9c8d0d4};
 
 class MeshComponent : public Component {
 private:
-	std::vector<glm::vec3> vertices_;
+	std::vector<SimpleVertex> vertices_;
 	std::vector<GLuint> indices_;
 
 public:
 	std::unique_ptr<MeshComponent> Clone() const { return std::make_unique<MeshComponent>(*this); }
 
-	std::vector<glm::vec3>& vertices() { return vertices_; }
-	const std::vector<glm::vec3>& vertices() const { return vertices_; }
+	std::vector<SimpleVertex>& vertices() { return vertices_; }
+	const std::vector<SimpleVertex>& vertices() const { return vertices_; }
 	std::vector<GLuint>& indices() { return indices_; }
 	const std::vector<GLuint>& indices() const { return indices_; }
 

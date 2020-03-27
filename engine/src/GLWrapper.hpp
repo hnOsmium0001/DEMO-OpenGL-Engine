@@ -161,6 +161,7 @@ using BufferObjects = GLObjects<count, GenBufferObjects_Internal_, DelBufferObje
 /// A `BufferObjects` alias with `count` defaulted to 1
 using BufferObject = BufferObjects<1>;
 
+/// Wrapper around an OpenGL shader object handle.
 class Shader {
 private:
 	GLuint handle_;
@@ -179,6 +180,7 @@ public:
 	GLuint handle() const { return handle_; }
 };
 
+/// Wrapper around an OpenGL shader program handle.
 class ShaderProgram {
 private:
 	GLuint handle_;
@@ -186,7 +188,7 @@ private:
 	ShaderProgram(GLuint handle) noexcept;
 
 public:
-	static std::optional<ShaderProgram> New(const std::string& vshSource, const std::string& fshSource);
+	static std::optional<ShaderProgram> FromSource(const std::string& vshSource, const std::string& fshSource);
 	static std::optional<ShaderProgram> New(const Shader& vsh, const Shader& fsh);
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator=(const ShaderProgram&) = delete;

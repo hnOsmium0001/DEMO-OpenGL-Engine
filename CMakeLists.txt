@@ -13,28 +13,30 @@ conan_basic_setup()
 add_library(opengl_engine
 	engine/src/Engine.hpp
 	engine/src/Engine.cpp
+	engine/src/MonadicUtil.hpp
 	engine/src/Entity.hpp
 	engine/src/Entity.cpp
 	engine/src/GLWrapper.hpp
 	engine/src/GLWrapper.cpp
+	engine/src/Model.hpp
+	engine/src/Model.cpp
 )
 target_link_libraries(opengl_engine ${CONAN_LIBS})
 
 # Examples should be able to #include engine headers
 include_directories(engine/src)
 
-add_executable(opengl_example
-	example/src/Graphics2DMain.cpp
-)
+add_executable(opengl_example example/src/Graphics2DMain.cpp)
 target_link_libraries(opengl_example
 	# Includes link targets in `opengl_engine`
 	opengl_engine
 )
 
-add_executable(opengl_3d_example
-	example/src/Graphics3DMain.cpp
-)
+add_executable(opengl_3d_example example/src/Graphics3DMain.cpp)
 target_link_libraries(opengl_3d_example
 	# Includes link targets in `opengl_engine`
 	opengl_engine
 )
+
+add_executable(test example/src/TestMain.cpp)
+target_link_libraries(test opengl_engine)

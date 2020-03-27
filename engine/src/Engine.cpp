@@ -5,6 +5,8 @@
 #include <sstream>
 #include <random>
 #include <limits>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 #include "Engine.hpp"
 
 using namespace HOEngine;
@@ -28,18 +30,32 @@ bool UUID::operator==(const UUID& that) const {
 	return std::tie(msb_, lsb_) == std::tie(that.msb_, that.lsb_);
 }
 
-size_t std::hash<HOEngine::UUID>::operator()(const HOEngine::UUID& uuid) const {
-	auto h1 = std::hash<uint64_t>()(uuid.msb_);
-	auto h2 = std::hash<uint64_t>()(uuid.lsb_);
-	return h1 ^ (h2 << 1);
+size_t std::hash<UUID>::operator()(const UUID& uuid) const {
+	std::hash<uint64_t> hasher;
+	size_t hash = 0;
+	HashCombine(hash, hasher(uuid.msb_));
+	HashCombine(hash, hasher(uuid.lsb_));
+	return hash;
 }
 
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim) {
 	strm << "(" << dim.width << ", " << dim.height << ")";
 	return strm;
 }
+std::string operator+(const char* prev, const Dimension& dim) {
+	std::string result(prev);
+	result += "(" + std::to_string(dim.width) + ", " + std::to_string(dim.height) + ")";
+	return result;
+}
+std::string operator+(const std::string& prev, const Dimension& dim) {
+	return prev + "(" + std::to_string(dim.width) + ", " + std::to_string(dim.height) + ")";
+}
 
-std::optional<std::string> Files::ReadFileAsStr(const std::string& path) {
+void HOEngine::HashCombine(size_t& seed, size_t hash) {
+	seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+std::optional<std::string> HOEngine::ReadFileAsStr(const std::string& path) {
 	std::ifstream in;
 	in.open(path);
 	if (!in.is_open()) return {};
@@ -49,7 +65,7 @@ std::optional<std::string> Files::ReadFileAsStr(const std::string& path) {
 	return buf.str();
 }
 
-std::optional<std::vector<std::string>> Files::ReadFileLines(const std::string &path) {
+std::optional<std::vector<std::string>> HOEngine::ReadFileLines(const std::string &path) {
 	std::ifstream in;
 	in.open(path);
 	if (!in.is_open()) return {};
@@ -149,4 +165,16 @@ ApplicationBase::~ApplicationBase() noexcept {
 
 void ApplicationBase::PrintGLFWError(int32_t code, const char* msg) {
 	std::cerr << "(" << code << ") Error: " << msg << "\n";
+}
+
+bool SimpleVertex::operator==(const SimpleVertex& that) const {
+	return std::tie(pos, normal, uv) == std::tie(that.pos, that.normal, that.uv);
+}
+
+size_t std::hash<SimpleVertex>::operator()(const SimpleVertex& vert) const {
+	size_t hash = 0;
+	HashCombine(hash, std::hash<glm::vec3>()(vert.pos));
+	HashCombine(hash, std::hash<glm::vec3>()(vert.normal));
+	HashCombine(hash, std::hash<glm::vec2>()(vert.uv));
+	return hash;
 }

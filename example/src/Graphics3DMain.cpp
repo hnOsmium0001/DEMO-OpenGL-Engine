@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Engine.hpp"
+#include "MonadicUtil.hpp"
 #include "GLWrapper.hpp"
 
 void ResizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
@@ -51,9 +52,10 @@ public:
 		HOEngine::StateObject vao;
 		HOEngine::BufferObject vbo, ibo;
  
-		auto vshSource = HOEngine::Files::ReadFileAsStr("example/resources/cube3d.vert");
-		auto fshSource = HOEngine::Files::ReadFileAsStr("example/resources/cube3d.frag");
-		auto programOpt = bind2(vshSource, fshSource, [](auto& vsh, auto& fsh) { return HOEngine::ShaderProgram::New(vsh, fsh); });
+		auto programOpt = bind2(
+				HOEngine::ReadFileAsStr("example/resources/cube3d.vert"),
+				HOEngine::ReadFileAsStr("example/resources/cube3d.frag"),
+				HOEngine::ShaderProgram::FromSource);
 		if (!programOpt) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;

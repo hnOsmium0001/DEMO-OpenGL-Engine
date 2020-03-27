@@ -5,9 +5,10 @@
 #include <../res/bindings/imgui_impl_glfw.h>
 #include <../res/bindings/imgui_impl_opengl3.h>
 #include "Engine.hpp"
+#include "MonadicUtil.hpp"
 #include "GLWrapper.hpp"
 
-void resizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
+void ResizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
 	auto window = HOEngine::Window::FromGLFW(handle);
 	if (window) {
 		window->Resize(width, height);
@@ -34,7 +35,7 @@ class Application : public HOEngine::ApplicationBase {
 public:
 	void Run() {
 		auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
-			.resizeCallback = resizeCallback,
+			.resizeCallback = ResizeCallback,
 			.keyCallback = keyCallback,
 			.charCallback = charCallback,
 			.cursorPosCallback = cursorPosCallback,
@@ -60,13 +61,15 @@ public:
 		glGenBuffers(1, &vbo);
 		HOEngine::ScopeGuard vboRelease([&]() { glDeleteBuffers(1, &vbo); });
  
-		auto vshSource = HOEngine::Files::ReadFileAsStr("example/resources/triangle.vert").value_or("");
-		auto fshSource = HOEngine::Files::ReadFileAsStr("example/resources/triangle.frag").value_or("");
-		auto program = HOEngine::ShaderProgram::New(vshSource, fshSource);
-		if (!program) {
+		auto programOpt = bind2(
+				HOEngine::ReadFileAsStr("example/resources/triangle.vert"),
+				HOEngine::ReadFileAsStr("example/resources/triangle.frag"),
+				HOEngine::ShaderProgram::FromSource);
+		if (!programOpt) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;
 		}
+		GLuint program = programOpt.value();
  
 		// Initialization
 		glBindVertexArray(vao);
@@ -125,10 +128,10 @@ public:
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glClearColor(175.0f / 255.0f, 175.0f / 255.0f, 175.0f / 255.0f, 1.0f);
  
-				glUseProgram(*program);
-				glUniform1f(glGetUniformLocation(*program, "coefR"), static_cast<float>(std::sin(time)) * 0.5f + 0.5f);
-				glUniform1f(glGetUniformLocation(*program, "coefG"), static_cast<float>(std::sin(time + 3.1415926535f / 2)) * 0.5f + 0.5f);
-				glUniform1f(glGetUniformLocation(*program, "coefB"), static_cast<float>(std::sin(time + 3.1415926535f)) * 0.5f + 0.5f);
+				glUseProgram(program);
+				glUniform1f(glGetUniformLocation(program, "coefR"), static_cast<float>(std::sin(time)) * 0.5f + 0.5f);
+				glUniform1f(glGetUniformLocation(program, "coefG"), static_cast<float>(std::sin(time + 3.1415926535f / 2)) * 0.5f + 0.5f);
+				glUniform1f(glGetUniformLocation(program, "coefB"), static_cast<float>(std::sin(time + 3.1415926535f)) * 0.5f + 0.5f);
  
 				glBindVertexArray(vao);
 				glDrawArrays(GL_TRIANGLES, 0, 1 * 3);
