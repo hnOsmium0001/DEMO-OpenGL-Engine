@@ -13,7 +13,7 @@ void ResizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
 	}
 }
  
-void KeyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
+void KeyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t mods) {
 }
  
 void CharCallback(GLFWwindow* handle, uint32_t codepoint) {
@@ -52,10 +52,10 @@ public:
 		HOEngine::StateObject vao;
 		HOEngine::BufferObject vbo, ibo;
  
-		auto programOpt = bind2(
+		auto programOpt = HOEngine::Bind(
+				HOEngine::ShaderProgram::FromSource,
 				HOEngine::ReadFileAsStr("example/resources/cube3d.vert"),
-				HOEngine::ReadFileAsStr("example/resources/cube3d.frag"),
-				HOEngine::ShaderProgram::FromSource);
+				HOEngine::ReadFileAsStr("example/resources/cube3d.frag"));
 		if (!programOpt) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;

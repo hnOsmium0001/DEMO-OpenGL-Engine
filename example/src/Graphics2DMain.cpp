@@ -16,19 +16,19 @@ void ResizeCallback(GLFWwindow* handle, int32_t width, int32_t height) {
 	}
 }
  
-void keyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t modss) {
+void KeyCallback(GLFWwindow* handle, int32_t key, int32_t scancode, int32_t action, int32_t mods) {
 }
  
-void charCallback(GLFWwindow* handle, uint32_t codepoint) {
+void CharCallback(GLFWwindow* handle, uint32_t codepoint) {
 }
  
-void cursorPosCallback(GLFWwindow* handle, double x, double y) {
+void CursorPosCallback(GLFWwindow* handle, double x, double y) {
 }
  
-void cursorButtonCallback(GLFWwindow* handle, int32_t button, int32_t action, int32_t mods) {
+void CursorButtonCallback(GLFWwindow* handle, int32_t button, int32_t action, int32_t mods) {
 }
  
-void scrollCallback(GLFWwindow* handle, double x, double y) {
+void ScrollCallback(GLFWwindow* handle, double x, double y) {
 }
  
 class Application : public HOEngine::ApplicationBase {
@@ -36,11 +36,11 @@ public:
 	void Run() {
 		auto window = HOEngine::Window::New({ 1024, 768 }, "Test window", {
 			.resizeCallback = ResizeCallback,
-			.keyCallback = keyCallback,
-			.charCallback = charCallback,
-			.cursorPosCallback = cursorPosCallback,
-			.cursorButtonCallback = cursorButtonCallback,
-			.scrollCallback = scrollCallback
+			.keyCallback = KeyCallback,
+			.charCallback = CharCallback,
+			.cursorPosCallback = CursorPosCallback,
+			.cursorButtonCallback = CursorButtonCallback,
+			.scrollCallback = ScrollCallback
 		});
 		if (window == nullptr) {
 			std::cerr << "Unable to create GLFW window, aborting\n";
@@ -51,20 +51,14 @@ public:
 			std::cerr << "Unable to initialize OpenGL, aborting\n";
 			return;
 		}
+
+		HOEngine::StateObject vao;
+		HOEngine::BufferObject vbo;
  
-		// Allocation
-		GLuint vao;
-		glGenVertexArrays(1, &vao);
-		HOEngine::ScopeGuard vaoRelease([&]() { glDeleteVertexArrays(1, &vao); });
- 
-		GLuint vbo;
-		glGenBuffers(1, &vbo);
-		HOEngine::ScopeGuard vboRelease([&]() { glDeleteBuffers(1, &vbo); });
- 
-		auto programOpt = bind2(
+		auto programOpt = HOEngine::Bind(
+				HOEngine::ShaderProgram::FromSource,
 				HOEngine::ReadFileAsStr("example/resources/triangle.vert"),
-				HOEngine::ReadFileAsStr("example/resources/triangle.frag"),
-				HOEngine::ShaderProgram::FromSource);
+				HOEngine::ReadFileAsStr("example/resources/triangle.frag"));
 		if (!programOpt) {
 			std::cerr << "Unable to create shader program, aborting\n";
 			return;
@@ -158,7 +152,7 @@ public:
 			ImGui::End();
  
 			ImGui::Begin("Rendering framebuffer");
-			ImGui::Image((void*) tex, fboDim);
+			ImGui::Image((void*)(intptr_t) tex, fboDim);
 			ImGui::End();
  
 			glClear(GL_COLOR_BUFFER_BIT);

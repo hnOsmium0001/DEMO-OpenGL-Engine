@@ -38,5 +38,5 @@ target_link_libraries(opengl_3d_example
 	opengl_engine
 )
 
-add_executable(test example/src/TestMain.cpp)
-target_link_libraries(test opengl_engine)
+add_executable(test_example example/src/TestMain.cpp)
+target_link_libraries(test_example opengl_engine)

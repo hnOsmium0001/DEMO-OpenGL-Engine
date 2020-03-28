@@ -1,9 +1,11 @@
 #include <utility>
 #include <array>
-#include <unordered_map>
 #include <sstream>
 #include <fstream>
 #include "Model.hpp"
+
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 using namespace HOEngine;
 
@@ -18,7 +20,7 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 
 	std::string line;
 	while (std::getline(data, line)) {
-		std::istringstream iss(line);
+		std::istringstream iss{line};
 
 		std::string start;
 		iss >> start;
@@ -64,7 +66,7 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 	}
 
 	target.vertices().reserve(knownVerts.size());
-	for (auto& [vert, idx]: knownVerts) {
+	for (const auto& [vert, idx]: knownVerts) {
 		target.vertices().push_back(vert);
 	}
 }
