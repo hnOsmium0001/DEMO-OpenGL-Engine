@@ -148,9 +148,9 @@ public:
 	void Resize(int32_t width, int32_t height);
 
 	Dimension& dim() { return dim_; }
-	int32_t width() { return dim_.width; }
-	int32_t height() { return dim_.height; }
 	const Dimension& dim() const { return dim_; }
+	int32_t width() const { return dim_.width; }
+	int32_t height() const { return dim_.height; }
 	operator GLFWwindow*() const { return handle_; }
 };
 
@@ -164,6 +164,8 @@ public:
 
 class SimpleVertex {
 public:
+	static void SetupPointers();
+
 	glm::vec3 pos;
 	glm::vec3 normal;
 	glm::vec2 uv;

@@ -1,7 +1,7 @@
 #include <utility>
 #include <iostream>
-#include "MonadicUtil.hpp"
 #include "GLWrapper.hpp"
+#include "MonadicUtil.hpp"
 
 using namespace HOEngine;
 
@@ -67,9 +67,10 @@ ShaderProgram::ShaderProgram(GLuint handle) noexcept
 }
 
 std::optional<ShaderProgram> ShaderProgram::FromSource(const std::string& vshSource, const std::string& fshSource) {
-	auto vsh = Shader::New(GL_VERTEX_SHADER, vshSource);
-	auto fsh = Shader::New(GL_FRAGMENT_SHADER, fshSource);
-	return bind2(vsh, fsh, [](auto& vsh, auto& fsh) { return ShaderProgram::New(vsh, fsh); });
+	return Bind(
+			ShaderProgram::New,
+			Shader::New(GL_VERTEX_SHADER, vshSource),
+			Shader::New(GL_FRAGMENT_SHADER, fshSource));
 }
 
 std::optional<ShaderProgram> ShaderProgram::New(const Shader& vsh, const Shader& fsh) {

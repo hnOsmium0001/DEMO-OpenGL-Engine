@@ -8,6 +8,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #include "Engine.hpp"
+#include "GLWrapper.hpp"
 
 using namespace HOEngine;
 
@@ -165,6 +166,10 @@ ApplicationBase::~ApplicationBase() noexcept {
 
 void ApplicationBase::PrintGLFWError(int32_t code, const char* msg) {
 	std::cerr << "(" << code << ") Error: " << msg << "\n";
+}
+
+void SimpleVertex::SetupPointers() {
+	VertexAttributes<float[3], float[3], float[2]>::SetupPointers();
 }
 
 bool SimpleVertex::operator==(const SimpleVertex& that) const {

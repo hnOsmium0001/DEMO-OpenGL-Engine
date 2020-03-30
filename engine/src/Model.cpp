@@ -2,10 +2,8 @@
 #include <array>
 #include <sstream>
 #include <fstream>
-#include "Model.hpp"
-
-#include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include "Model.hpp"
 
 using namespace HOEngine;
 
@@ -41,14 +39,23 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 		} else if (start == "f") {
 			std::array<uint32_t, 3> tri;
 			// We only support triangular faces (with 3 vertices)
+			// Format: f pos/uv/normal pos/uv/normal pos/uv/normal
 			for (uint32_t iv, it, in, i = 0; i < 3; ++i) {
-				// Format: f pos/uv/normal pos/uv/normal pos/uv/normal
-				iss >> iv >> ctrash >> it >> ctrash >> in;
+				/* A vertex must have at least the position */ iss >> iv;
+				iss >> ctrash;
+				if (!uvBuf.empty()) iss >> it;
+				iss >> ctrash;
+				if (!normalBuf.empty()) iss >> in;
+
 				// .obj file index starts at 1
 				--iv;
 				--it;
 				--in;
-				SimpleVertex candidate{posBuf[iv], normalBuf[in], uvBuf[it]};
+				SimpleVertex candidate{
+					posBuf[iv],
+					normalBuf.empty() ? glm::vec3{} : normalBuf[in],
+					uvBuf.empty() ? glm::vec2{} : uvBuf[it]
+				};
 
 				auto iter = knownVerts.find(candidate);
 				if (iter != knownVerts.end()) {
@@ -60,8 +67,9 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 					tri[i] = nextID;
 					++nextID;
 				}
-			}	
+			}
 			indices.insert(indices.end(), tri.begin(), tri.end());
+		} else if (start == "g") {
 		}
 	}
 

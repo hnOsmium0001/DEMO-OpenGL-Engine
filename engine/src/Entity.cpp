@@ -4,7 +4,6 @@
 using namespace HOEngine;
 
 namespace {
-
 	std::unordered_map<UUID, uint32_t> runtimeCompMapping;
 	uint32_t nextRID = 0;
 
@@ -17,9 +16,21 @@ namespace {
 			return it->second;
 		}
 	}
-
 }
 
+Entity Entity::New() {
+	return Entity{};
+}
+Entity Entity::NewObject() {
+	Entity entity;
+	entity.AddComponent(std::make_unique<TransformComponent>());
+	entity.AddComponent(std::make_unique<MeshComponent>());
+	return entity;
+}
+
+// Somehow if the contructor is default the compiler complains
+Entity::Entity() noexcept {
+}
 Entity::Entity(const Entity& that) {
 	for (const auto& [rid, compPtr] : that.components) {
 		this->components.insert({rid, compPtr->Clone()});
@@ -41,14 +52,32 @@ Component* Entity::GetComponent(const UUID& typeID) {
 	} else {
 		return nullptr;
 	}
+}	
+Component& Entity::GetComponentChecked(const UUID& typeID) {
+	auto ptr = GetComponent(typeID);
+	if (!ptr) throw std::runtime_error("This entity does not contain a component that has the given UUID");
+	return *ptr;
 }
 void Entity::AddComponent(std::unique_ptr<Component> component) {
 	if (!component) return;
 	auto rid = FindCompRID(component->GetTypeID());
+	component->attachedEntity = this;
 	components[rid] = std::move(component);
+}
+std::unique_ptr<Component> Entity::TakeComponent(const UUID &typeID) {
+	auto rid = FindCompRID(typeID);
+	auto iter = components.find(rid);
+	if (iter != components.end()) {
+		auto comp = std::move(iter->second);
+		components.erase(rid);
+		comp->attachedEntity = nullptr;
+		return comp;
+	}
+	return nullptr;
 }
 void Entity::RemoveComponent(const UUID &typeID) {
 	auto rid = FindCompRID(typeID);
+	// No need to detach, because we are destroying the component anyways
 	components.erase(rid);
 }
 void Entity::RemoveAllComponents() {
@@ -95,20 +124,28 @@ std::optional<uint64_t> EntitiesStorage::NextAvailableSpot() {
 glm::mat4 TransformComponent::TranslationMat() const {
 	glm::mat4 result;
 	// Position vector -> 4th column
-	result[3] = glm::vec4(position_, 1);
+	result[3] = glm::vec4(pos, 1);
 	return result;
 };
 glm::mat4 TransformComponent::RotationMat() const {
 	glm::mat4 result;
-	// TODO
+	result[0][0] = 1 - 2*rot.y*rot.y - 2*rot.z*rot.z;
+	result[0][1] = 2*rot.x*rot.y + 2*rot.w*rot.z;
+	result[0][2] = 2*rot.x*rot.z - 2*rot.w*rot.y;
+	result[1][0] = 2*rot.x*rot.y - 2*rot.w*rot.z;
+	result[1][1] = 1 - 2*rot.x*rot.x - 2*rot.z*rot.z;
+	result[1][2] = 2*rot.y*rot.z + 2*rot.w*rot.x;
+	result[2][0] = 2*rot.x*rot.z + 2*rot.w*rot.y;
+	result[2][1] = 2*rot.w*rot.z - 2*rot.w*rot.x;
+	result[2][2] = 1 - 2*rot.x*rot.x - 2*rot.y*rot.y;
 	return result;
 }
 glm::mat4 TransformComponent::ScaleMat() const {
 	glm::mat4 result;
-	result[0][0] = scale_[0];
-	result[1][1] = scale_[1];
-	result[2][2] = scale_[2];
-	result[3][3] = scale_[3];
+	result[0][0] = scale[0];
+	result[1][1] = scale[1];
+	result[2][2] = scale[2];
+	result[3][3] = scale[3];
 	return result;
 }
 glm::mat4 TransformComponent::TransformMat() const {
@@ -124,9 +161,10 @@ void MeshRendererComponent::Populate() {
 }
 
 glm::mat4 CameraComponent::ViewMat() const  {
-	// TODO
-	return glm::mat4();
+	auto tr = Ent()->GetComponent<TransformComponent>();
+	return glm::lookAt(tr->pos, viewRay, up);
 }
-glm::mat4 CameraComponent::PerspectiveMat() const {
-	return glm::perspective(fov_, 0.0f, nearPane_, farPane_);
+glm::mat4 CameraComponent::PerspectiveMat(const Window* window) const {
+	float aspect = static_cast<float>(window->width() / window->height());
+	return glm::perspective(fov, aspect, nearPane, farPane);
 }
