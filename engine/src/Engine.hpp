@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 #include <string>
 #include <functional>
 #include <memory>
@@ -10,6 +11,18 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
+using i8 = int8_t;
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
+using f32 = float;
+using f64 = double;
+using usize = size_t;
 
 namespace HOEngine {
 
@@ -40,8 +53,8 @@ struct std::hash<HOEngine::UUID> {
 namespace HOEngine {
 
 struct Dimension {
-	int32_t width;
-	int32_t height;
+	i32 width;
+	i32 height;
 };
 std::ostream& operator<<(std::ostream& strm, const Dimension& dim);
 std::string operator+(const char* prev, const Dimension& dim);
@@ -71,7 +84,7 @@ inline void HashCombine(size_t& seed, size_t hash);
 std::optional<std::string> ReadFileAsStr(const std::string& path);
 std::optional<std::vector<std::string>> ReadFileLines(const std::string& path);
 
-template<int32_t n, typename... Ts>
+template<i32 n, typename... Ts>
 using NthTypeOf = typename std::tuple_element<n, std::tuple<Ts...>>::type;
 
 template <typename T>
@@ -83,11 +96,11 @@ template<> struct ToGL<float> {
 	static constexpr GLenum value = GL_FLOAT;
 	using Type = GLfloat;
 };
-template<> struct ToGL<double> {
+template<> struct ToGL<f64> {
 	static constexpr GLenum value = GL_DOUBLE;
-	using Type = GLdouble;
+	using Type = GLf64;
 };
-template<> struct ToGL<int32_t> {
+template<> struct ToGL<i32> {
 	static constexpr GLenum value = GL_INT;
 	using Type = GLint;
 };
@@ -99,7 +112,7 @@ template<> struct ToGL<int8_t> {
 	static constexpr GLenum value = GL_BYTE;
 	using Type = GLbyte;
 };
-template<> struct ToGL<uint32_t> {
+template<> struct ToGL<u32> {
 	static constexpr GLenum value = GL_UNSIGNED_INT;
 	using Type = GLuint;
 };
@@ -113,12 +126,12 @@ template<> struct ToGL<uint8_t> {
 };
 
 struct WindowCallbacks {
-	std::optional<void(*)(GLFWwindow*, int32_t, int32_t)> resizeCallback;
-	std::optional<void(*)(GLFWwindow*, int32_t, int32_t, int32_t, int32_t)> keyCallback;
-	std::optional<void(*)(GLFWwindow*, uint32_t)> charCallback;
-	std::optional<void(*)(GLFWwindow*, double, double)> cursorPosCallback;
-	std::optional<void(*)(GLFWwindow*, int32_t, int32_t, int32_t)> cursorButtonCallback;
-	std::optional<void(*)(GLFWwindow*, double, double)> scrollCallback;
+	std::optional<void(*)(GLFWwindow*, i32, i32)> resizeCallback;
+	std::optional<void(*)(GLFWwindow*, i32, i32, i32, i32)> keyCallback;
+	std::optional<void(*)(GLFWwindow*, u32)> charCallback;
+	std::optional<void(*)(GLFWwindow*, f64, f64)> cursorPosCallback;
+	std::optional<void(*)(GLFWwindow*, i32, i32, i32)> cursorButtonCallback;
+	std::optional<void(*)(GLFWwindow*, f64, f64)> scrollCallback;
 };
 
 class Window {
@@ -133,7 +146,7 @@ public:
 	/// Automatically handle fetching HOEngine::Window and internal resizing logic.
 	/// Used by default callbacks when user-defined callbacks are not provided,
 	/// not recommanded for direct usages.
-	static void HandleGLFWResize(GLFWwindow* handle, int32_t width, int32_t height);
+	static void HandleGLFWResize(GLFWwindow* handle, i32 width, i32 height);
 	static std::unique_ptr<Window> New(const Dimension& dim, const std::string& title, const WindowCallbacks& callbacks);
 
 	/// Constructor for creating from an already-created GLFWwindow. Main purpose is
@@ -145,12 +158,12 @@ public:
 	Window& operator=(Window&& source) noexcept;
 	~Window() noexcept;
 
-	void Resize(int32_t width, int32_t height);
+	void Resize(i32 width, i32 height);
 
 	Dimension& dim() { return dim_; }
 	const Dimension& dim() const { return dim_; }
-	int32_t width() const { return dim_.width; }
-	int32_t height() const { return dim_.height; }
+	i32 width() const { return dim_.width; }
+	i32 height() const { return dim_.height; }
 	operator GLFWwindow*() const { return handle_; }
 };
 
@@ -159,7 +172,7 @@ public:
 	ApplicationBase();
 	~ApplicationBase() noexcept;
 
-	static void PrintGLFWError(int32_t code, const char* msg);
+	static void PrintGLFWError(i32 code, const char* msg);
 };
 
 class SimpleVertex {
@@ -180,6 +193,6 @@ struct std::hash<HOEngine::SimpleVertex> {
 	size_t operator()(const HOEngine::SimpleVertex& vert) const;
 };
 
-constexpr float operator"" _deg(long double degrees) {
+constexpr f32 operator"" _deg(long double degrees) {
 	return static_cast<float>(degrees * 3.14159265358979323846264l / 180);
 }

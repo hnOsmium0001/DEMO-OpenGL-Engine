@@ -14,18 +14,18 @@ namespace HOEngine {
 template <typename... As>
 class VertexAttributes {
 public:
-	static constexpr size_t elements = sizeof...(As);
-	static constexpr size_t bytes = (sizeof(As) + ... + 0);
+	static constexpr usize elements = sizeof...(As);
+	static constexpr usize bytes = (sizeof(As) + ... + 0);
 
-	template <size_t n>
+	template <usize n>
 	using AttribAt = NthTypeOf<n, As...>;
-	template <size_t n>
+	template <usize n>
 	using ElmAt = typename std::remove_all_extents<NthTypeOf<n, As...>>::type;
-	template <size_t n>
-	static constexpr size_t lenAt = std::extent<NthTypeOf<n, As...>>::value;
+	template <usize n>
+	static constexpr usize lenAt = std::extent<NthTypeOf<n, As...>>::value;
 
-	template <size_t n>
-	inline static constexpr size_t AttributeOffset() {
+	template <usize n>
+	inline static constexpr usize AttributeOffset() {
 		if constexpr (n == 0) {
 			return 0;
 		} else {
@@ -33,13 +33,13 @@ public:
 		}
 	}
 
-	template <size_t nthAttribute, size_t nthElement>
-	inline static constexpr size_t ElementOffset() {
+	template <usize nthAttribute, usize nthElement>
+	inline static constexpr usize ElementOffset() {
 		return AttributeOffset<nthAttribute>() + sizeof(ElmAt<nthAttribute>) * nthElement;
 	}
 
-	template <size_t n>
-	inline static size_t ElementOffset(size_t index) {
+	template <usize n>
+	inline static usize ElementOffset(usize index) {
 		return AttributeOffset<n>() + sizeof(ElmAt<n>) * index;
 	}
 
@@ -48,8 +48,8 @@ public:
 	}
 
 private:
-	template <size_t n>
-	inline static void SetupOne(size_t offset) {
+	template <usize n>
+	inline static void SetupOne(usize offset) {
 		static_assert(n < elements, "Attribute index out of bounds!");
 		static_assert(std::is_array<AttribAt<n>>::value, "AttributeLayout parameters must be arrays!");
 
@@ -70,12 +70,12 @@ public:
 	class Attribute {
 	private:
 		VertexAttributes<As...>* vertex_;
-		size_t currentIndex_ = 0;
+		usize currentIndex_ = 0;
 
 	public:
 		using Arr = AttribAt<n>;
 		using Elm = ElmAt<n>;
-		static constexpr size_t len = lenAt<n>;
+		static constexpr usize len = lenAt<n>;
 
 		Attribute(VertexAttributes<As...>* vertex)
 			: vertex_{ vertex }, currentIndex_{ 0 } {
@@ -100,18 +100,18 @@ public:
 		}
 	};
 
-	template <size_t n>
+	template <usize n>
 	Attribute<n> Attr() {
 		return Attribute<n>(this);
 	}
 
-	template <size_t n, size_t i>
+	template <usize n, usize i>
 	ElmAt<n>* Get() {
 		auto offset = ElementOffset<n, i>;
 		return reinterpret_cast<ElmAt<n>*>(data + offset);
 	}
 
-	template <size_t n, size_t i>
+	template <usize n, usize i>
 	void Set(ElmAt<n> value) {
 		auto offset = ElementOffset<n, i>;
 		std::memcpy(data + offset, &value, sizeof(Attribute<n>::Elm));
@@ -121,8 +121,7 @@ public:
 using GLGenBuf = void(*)(GLsizei, GLuint*);
 using GLDelBuf = void(*)(GLsizei, GLuint*);
 
-// template <GLuint count, GLGenBuf gen, GLDelBuf del>
-template <size_t count, GLGenBuf gen, GLDelBuf del>
+template <usize count, GLGenBuf gen, GLDelBuf del>
 class GLObjects {
 private:
 	static_assert(count > 0, "GLObjects must contain at least one object. 0 is provided.");
@@ -132,7 +131,20 @@ private:
 public:
 	GLObjects() noexcept { gen(count, handles.data()); }
 	~GLObjects() noexcept { del(count, handles.data()); }
-	GLuint handle(size_t index) const { return handles[index]; }
+	GLObjects(const GLObjects&) = delete;
+	GLObjects& operator=(const GLObjects&) = delete;
+	GLObjects(GLObjects&& that)
+		: handles{ std::move(that.handles) } {
+		std::fill(that.handles.begin(), that.handles.end(), 0);
+	}
+	GLObjects& operator=(GLObjects&& that) {
+		glDeleteBuffers(count, this->handles.data());
+		this->handles = std::move(that.handles);
+		std::fill(that.handles.begin(), that.handles.end(), 0);
+		return *this;
+	}
+
+	GLuint handle(usize index) const { return handles[index]; }
 	GLuint handle() const { return handles[0]; }
 	operator GLuint() const { return handles[0]; }
 };
@@ -149,14 +161,14 @@ inline void DelBufferObjects_Internal_(GLsizei size, GLuint* ptr) { glDeleteBuff
 
 /// Aka "vertex array object" which stores buffer binding and attribute
 /// pointer states.
-template <size_t count>
+template <usize count>
 using StateObjects = GLObjects<count, GenStateObjects_Internal_, DelStateObjects_Internal_>;
 /// A `StateObjects` alias with `count` defaulted to 1
 using StateObject = StateObjects<1>;
 
 /// Very primitive wrapper around a "vertex buffer object". This does not
 /// manage OpenGL buffer usages, nor does it handle binding.
-template <size_t count>
+template <usize count>
 using BufferObjects = GLObjects<count, GenBufferObjects_Internal_, DelBufferObjects_Internal_>;
 /// A `BufferObjects` alias with `count` defaulted to 1
 using BufferObject = BufferObjects<1>;
@@ -164,40 +176,42 @@ using BufferObject = BufferObjects<1>;
 /// Wrapper around an OpenGL shader object handle.
 class Shader {
 private:
-	GLuint handle_;
+	GLuint handle;
 
+private:
 	Shader(GLuint handle) noexcept;
 
 public:
 	static std::optional<Shader> New(GLenum type, const std::string& source);
+	~Shader() noexcept;
 	Shader(const Shader&) = delete;
 	Shader& operator=(const Shader&) = delete;
 	Shader(Shader&& source) noexcept;
 	Shader& operator=(Shader&& source) noexcept;
-	~Shader() noexcept;
 	
-	operator GLuint() const { return handle_; }
-	GLuint handle() const { return handle_; }
+	operator GLuint() const { return handle; }
+	GLuint id() const { return handle; }
 };
 
 /// Wrapper around an OpenGL shader program handle.
 class ShaderProgram {
 private:
-	GLuint handle_;
+	GLuint handle;
 
+private:
 	ShaderProgram(GLuint handle) noexcept;
 
 public:
 	static std::optional<ShaderProgram> FromSource(const std::string& vshSource, const std::string& fshSource);
 	static std::optional<ShaderProgram> New(const Shader& vsh, const Shader& fsh);
+	~ShaderProgram() noexcept;
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator=(const ShaderProgram&) = delete;
 	ShaderProgram(ShaderProgram&& source) noexcept;
 	ShaderProgram& operator=(ShaderProgram&& source) noexcept;
-	~ShaderProgram() noexcept;
 
-	operator GLuint() const { return handle_; }
-	GLuint handle() const { return handle_; }
+	operator GLuint() const { return handle; }
+	GLuint id() const { return handle; }
 };
 
 } // namespace HOEngine

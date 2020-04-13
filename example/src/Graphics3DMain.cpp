@@ -105,11 +105,11 @@ public:
 		glBindVertexArray(0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.vertices()), &mesh.vertices(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, mesh.VerticesSize(), &mesh.vertices, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(mesh.indices()), &mesh.indices(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.IndicesSize(), &mesh.indices, GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		// Camera stuff
@@ -123,7 +123,7 @@ public:
 			glUniform4fv(glGetUniformLocation(program, "mvp"), 1, &mvp[0][0]);
 
 			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLE_STRIP, mesh.indices().size() / 3, GL_UNSIGNED_SHORT, 0);
+			glDrawElements(GL_TRIANGLE_STRIP, mesh.indices.size() / 3, GL_UNSIGNED_SHORT, 0);
 
 			glfwSwapBuffers(*window);
 			glfwPollEvents();

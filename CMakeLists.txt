@@ -20,6 +20,8 @@ add_library(opengl_engine
 	engine/src/GLWrapper.cpp
 	engine/src/Model.hpp
 	engine/src/Model.cpp
+	engine/src/phys/Physics.hpp
+	engine/src/phys/Physics.cpp
 )
 target_link_libraries(opengl_engine ${CONAN_LIBS})
 

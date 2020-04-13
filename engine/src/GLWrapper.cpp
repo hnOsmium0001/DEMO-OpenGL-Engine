@@ -6,9 +6,16 @@
 using namespace HOEngine;
 
 Shader::Shader(GLuint handle) noexcept
-	: handle_{ handle } {
+	: handle{ handle } {
 }
-
+Shader::~Shader() noexcept {
+	// Even though we only create a shader when if glShaderSource and glCompileShader are successful,
+	// the shader (GL object) might be moved to another shader (C++ object) already
+	// in this case this object don't own the shader (GL object) anymore
+	if (handle != 0) {
+		glDeleteShader(handle);
+	}
+}
 std::optional<Shader> Shader::New(GLenum type, const std::string& source) {
 	GLuint handle = glCreateShader(type);
 	if (handle == 0) return {};
@@ -31,48 +38,43 @@ std::optional<Shader> Shader::New(GLenum type, const std::string& source) {
 		std::string log;
 		// Shader info log length is null-terminated, and std::string all automatically add 1 char for null termination
 		// If we don't remove one char there will be two null bytes at the end
-		log.resize(static_cast<std::string::size_type>(logLen - 1));
+		log.resize(static_cast<std::string::usizeype>(logLen - 1));
 		glGetShaderInfoLog(handle, logLen, nullptr, log.data());
 		std::cerr << log << "\n";
 		return {};
 	}
-	
 
 	// Successfully constructed the shader
 	return shader;
 }
-
 Shader::Shader(Shader&& source) noexcept
-	: handle_{ std::move(source.handle_) } {
-	source.handle_ = 0;
+	: handle{ std::move(source.handle) } {
+	source.handle = 0;
 }
-
 Shader& Shader::operator=(Shader&& source) noexcept {
-	this->handle_ = std::move(source.handle_);
-	source.handle_ = 0;
+	if (this->handle != 0) {
+		glDeleteShader(this->handle);
+	}
+	this->handle = std::move(source.handle);
+	source.handle = 0;
 	return *this;
 }
 
-Shader::~Shader() noexcept {
-	// Even though we only create a shader when if glShaderSource and glCompileShader are successful,
-	// the shader (GL object) might be moved to another shader (C++ object) already
-	// in this case this object don't own the shader (GL object) anymore
-	if (handle_ != 0) {
-		glDeleteShader(handle_);
+ShaderProgram::ShaderProgram(GLuint handle) noexcept
+	: handle{ handle } {
+}
+ShaderProgram::~ShaderProgram() noexcept {
+	// See shader objects for the reason behind this
+	if (handle != 0) {
+		glDeleteProgram(handle);
 	}
 }
-
-ShaderProgram::ShaderProgram(GLuint handle) noexcept
-	: handle_{ handle } {
-}
-
 std::optional<ShaderProgram> ShaderProgram::FromSource(const std::string& vshSource, const std::string& fshSource) {
 	return Bind(
 			ShaderProgram::New,
 			Shader::New(GL_VERTEX_SHADER, vshSource),
 			Shader::New(GL_FRAGMENT_SHADER, fshSource));
 }
-
 std::optional<ShaderProgram> ShaderProgram::New(const Shader& vsh, const Shader& fsh) {
 	auto handle = glCreateProgram();
 	if (handle == 0) return {};
@@ -89,7 +91,7 @@ std::optional<ShaderProgram> ShaderProgram::New(const Shader& vsh, const Shader&
 		GLint logLen;
 		glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &logLen);
 		std::string log;
-		log.resize(static_cast<std::string::size_type>(logLen - 1));
+		log.resize(static_cast<std::string::usizeype>(logLen - 1));
 		glGetProgramInfoLog(handle, logLen, nullptr, log.data());
 		std::cerr << log << "\n";
 		return {};
@@ -97,21 +99,15 @@ std::optional<ShaderProgram> ShaderProgram::New(const Shader& vsh, const Shader&
 
 	return program;
 }
-
 ShaderProgram::ShaderProgram(ShaderProgram&& source) noexcept
-	: handle_{ std::move(source.handle_) } {
-	source.handle_ = 0;
+	: handle{ std::move(source.handle) } {
+	source.handle = 0;
 }
-
 ShaderProgram& ShaderProgram::operator=(ShaderProgram&& source) noexcept {
-	this->handle_ = std::move(source.handle_);
-	source.handle_ = 0;
-	return *this;
-}
-
-ShaderProgram::~ShaderProgram() noexcept {
-	// See shader objects for the reason behind this
-	if (handle_ != 0) {
-		glDeleteProgram(handle_);
+	if (this->handle != 0) {
+		glDeleteProgram(handle);
 	}
+	this->handle = std::move(source.handle);
+	source.handle = 0;
+	return *this;
 }

@@ -12,9 +12,10 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 	std::vector<glm::vec3> posBuf;
 	std::vector<glm::vec3> normalBuf;
 	std::vector<glm::vec2> uvBuf;
-	std::unordered_map<SimpleVertex, uint32_t> knownVerts;
-	uint32_t nextID = 0;
-	auto& indices = target.indices();
+	std::unordered_map<SimpleVertex, u32> knownVerts;
+	u32 nextID = 0;
+	auto& indices = target.indices;
+	auto& vertices = target.vertices;
 
 	std::string line;
 	while (std::getline(data, line)) {
@@ -26,21 +27,21 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 			continue;
 		} else if (start == "v") {
 			glm::vec3 pos;
-			for (size_t i = 0; i < 3; ++i) iss >> pos[i];
+			for (usize i = 0; i < 3; ++i) iss >> pos[i];
 			posBuf.push_back(std::move(pos));
 		} else if (start == "vt") {
 			glm::vec3 normal;
-			for (size_t i = 0; i < 3; ++i) iss >> normal[i];
+			for (usize i = 0; i < 3; ++i) iss >> normal[i];
 			normalBuf.push_back(std::move(normal));
 		} else if (start == "vn") {
 			glm::vec2 uv;
-			for (size_t i = 0; i < 2; ++i) iss >> uv[i];
+			for (usize i = 0; i < 2; ++i) iss >> uv[i];
 			uvBuf.push_back(std::move(uv));
 		} else if (start == "f") {
-			std::array<uint32_t, 3> tri;
+			std::array<u32, 3> tri;
 			// We only support triangular faces (with 3 vertices)
 			// Format: f pos/uv/normal pos/uv/normal pos/uv/normal
-			for (uint32_t iv, it, in, i = 0; i < 3; ++i) {
+			for (u32 iv, it, in, i = 0; i < 3; ++i) {
 				/* A vertex must have at least the position */ iss >> iv;
 				iss >> ctrash;
 				if (!uvBuf.empty()) iss >> it;
@@ -73,9 +74,9 @@ void HOEngine::ReadOBJ(MeshComponent& target, std::istream& data) {
 		}
 	}
 
-	target.vertices().reserve(knownVerts.size());
+	vertices.reserve(knownVerts.size());
 	for (const auto& [vert, idx]: knownVerts) {
-		target.vertices().push_back(vert);
+		vertices.push_back(vert);
 	}
 }
 void HOEngine::ReadOBJ(MeshComponent& target, const std::string& data) {

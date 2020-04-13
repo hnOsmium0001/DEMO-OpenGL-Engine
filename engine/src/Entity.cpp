@@ -4,10 +4,10 @@
 using namespace HOEngine;
 
 namespace {
-	std::unordered_map<UUID, uint32_t> runtimeCompMapping;
-	uint32_t nextRID = 0;
+	std::unordered_map<UUID, u32> runtimeCompMapping;
+	u32 nextRID = 0;
 
-	uint32_t FindCompRID(const UUID& typeID) {
+	u32 FindCompRID(const UUID& typeID) {
 		auto it = runtimeCompMapping.find(typeID);
 		if (it == runtimeCompMapping.end()) {
 			runtimeCompMapping.insert({typeID, nextRID});
@@ -98,7 +98,7 @@ EntityID EntitiesStorage::Add(Entity entity) {
 	auto gen = nextGen++;
 	auto entry = Entry{std::move(entity), gen};
 	auto next = NextAvailableSpot();
-	uint64_t idx;
+	u64 idx;
 	if (next.has_value()) {
 		idx = *next;
 		entities[idx] = std::move(entry);
@@ -114,7 +114,7 @@ void EntitiesStorage::Remove(EntityID id) {
 	tombstones.push(id.idx);
 }
 
-std::optional<uint64_t> EntitiesStorage::NextAvailableSpot() {
+std::optional<u64> EntitiesStorage::NextAvailableSpot() {
 	if (tombstones.empty()) return {};
 	auto result = tombstones.front();
 	tombstones.pop();
@@ -150,6 +150,13 @@ glm::mat4 TransformComponent::ScaleMat() const {
 }
 glm::mat4 TransformComponent::TransformMat() const {
 	return ScaleMat() * RotationMat() * TranslationMat();
+}
+
+usize MeshComponent::VerticesSize() const {
+	return sizeof(vertices) + sizeof(decltype(vertices)::value_type) * vertices.size();
+}
+usize MeshComponent::IndicesSize() const {
+	return sizeof(indices) + sizeof(decltype(indices)::value_type) * vertices.size();
 }
 
 void MeshRendererComponent::Populate() {

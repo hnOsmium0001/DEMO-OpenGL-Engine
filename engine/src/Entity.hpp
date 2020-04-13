@@ -37,13 +37,13 @@ protected:
 };
 
 struct EntityID {
-	const size_t idx;
-	const uint64_t gen;
+	const usize idx;
+	const u64 gen;
 };
 
 class Entity {
 private:
-	std::unordered_map<uint32_t, std::unique_ptr<Component>> components;
+	std::unordered_map<u32, std::unique_ptr<Component>> components;
 
 public:
 	/// Create a new Entity that has nothing attached.
@@ -82,9 +82,9 @@ class EntitiesStorage {
 public:
 	struct Entry {
 		Entity value;
-		uint64_t gen;
+		u64 gen;
 	};
-	static const uint64_t INVALID_GEN = 0;
+	static const u64 INVALID_GEN = 0;
 
 private:
 	static EntitiesStorage New();
@@ -96,32 +96,32 @@ private:
 	EntitiesStorage& operator=(EntitiesStorage&&) = default;
 
 	std::vector<Entry> entities;
-	std::queue<size_t> tombstones;
-	uint64_t nextGen = 1; // Generation 0 is reserved for static null
+	std::queue<usize> tombstones;
+	u64 nextGen = 1; // Generation 0 is reserved for static null
 
 public:
 	Entity* Get(EntityID id);
 	EntityID Add(Entity entity);
 	void Remove(EntityID id);
 
-	size_t Size() const;
+	usize Size() const;
 
 private:
-	std::optional<uint64_t> NextAvailableSpot();
+	std::optional<u64> NextAvailableSpot();
 };
 
 // =================== //
 // Built-in components //
 // =================== //
 
-template <uint64_t msb, uint64_t lsb>
+template <u64 msb, u64 lsb>
 class ComponentUUIDMixin : virtual public Component {
 public:
 	static const UUID uuid;
 	virtual ~ComponentUUIDMixin() noexcept = default;
 	virtual const UUID& GetTypeID() const override { return uuid; }
 };
-template <uint64_t msb, uint64_t lsb>
+template <u64 msb, u64 lsb>
 const UUID ComponentUUIDMixin<msb, lsb>::uuid{msb, lsb};
 
 class TransformComponent : public ComponentUUIDMixin<0xa6b655c3a9c8d0d4, 0xa6b655c3a9c8d0d4> {
@@ -151,6 +151,9 @@ public:
 public:
 	virtual ~MeshComponent() noexcept = default;
 	std::unique_ptr<MeshComponent> Clone() const { return std::make_unique<MeshComponent>(*this); }
+
+	usize VerticesSize() const;
+	usize IndicesSize() const;
 
 protected:
 	virtual MeshComponent* CloneImpl() const override { return new MeshComponent(*this); }
