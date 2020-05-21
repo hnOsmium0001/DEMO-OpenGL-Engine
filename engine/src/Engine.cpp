@@ -27,10 +27,6 @@ UUID UUID::Random() {
 	return UUID{msbits, lsbits};
 }
 
-bool UUID::operator==(const UUID& that) const {
-	return std::tie(msb_, lsb_) == std::tie(that.msb_, that.lsb_);
-}
-
 size_t std::hash<UUID>::operator()(const UUID& uuid) const {
 	std::hash<uint64_t> hasher;
 	size_t hash = 0;

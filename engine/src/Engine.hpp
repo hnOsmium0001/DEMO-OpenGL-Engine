@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <compare>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -38,7 +39,7 @@ public:
 
 	const uint64_t& msb() const { return msb_; }
 	const uint64_t& lsb() const { return lsb_; }
-	bool operator==(const UUID&) const;
+	auto operator<=>(const UUID&) const = default;
 
 	friend std::hash<UUID>;
 };
